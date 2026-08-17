@@ -1,7 +1,9 @@
 # AIMPowered New API on Google Cloud
 
-This deployment runs the upstream `QuantumNous/new-api` release on Cloud Run
-with persistent PostgreSQL storage in Cloud SQL.
+The bootstrap script runs a pinned upstream `QuantumNous/new-api` release on
+Cloud Run with persistent PostgreSQL storage in Cloud SQL. After bootstrap,
+the fork's `release` branch can be delivered through GitHub Actions using the
+workflow documented in `.github/RELEASE_BRANCH_WORKFLOW.md`.
 
 ## Current sizing
 
@@ -27,6 +29,16 @@ stage.
 The script is scoped to project `aimpowered` by default. All names and the
 region can be overridden with environment variables documented at the top of
 the script.
+
+## GitHub-managed delivery
+
+Merges into `release` run the release CI and publish a multi-architecture image
+to GitHub Container Registry. When the `production` GitHub environment has
+Workload Identity Federation configured, the successful image is mirrored to
+Artifact Registry and deployed to the existing Cloud Run service.
+
+The required GitHub environment secrets and optional repository variables are
+listed in `.github/RELEASE_BRANCH_WORKFLOW.md`.
 
 ## Administrator password
 
