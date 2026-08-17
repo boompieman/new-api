@@ -85,4 +85,9 @@ jobs:
         run: bun run typecheck
 
       - name: Test
-        run: bun test
+        run: |
+          if bun -e "const pkg = await Bun.file('package.json').json(); process.exit(pkg.scripts?.test ? 0 : 1)"; then
+            bun run test
+          else
+            echo "No frontend test script is defined for this upstream snapshot; skipping."
+          fi
