@@ -1,0 +1,107 @@
+name: Deploy release to Cloud Run
+
+on:
+  workflow_run:
+    workflows:
+      - Publish release image
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write
+
+concurrency:
+  group: deploy-release-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy production
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'aimpowered' }}
+      GCP_REGION: ${{ vars.GCP_REGION || 'asia-east1' }}
+      GCP_CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE || 'aimpowered-newapi' }}
+      GCP_ARTIFACT_REPOSITORY: ${{ vars.GCP_ARTIFACT_REPOSITORY || 'cloud-run-images' }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_DEPLOY_SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+    steps:
+      - name: Check deployment configuration
+        id: config
+        run: |
+          if [ -z "$GCP_WORKLOAD_IDENTITY_PROVIDER" ] || [ -z "$GCP_DEPLOY_SERVICE_ACCOUNT" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Cloud Run deployment skipped because the production environment is not configured." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to Google Cloud
+        if: steps.config.outputs.enabled == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud CLI
+        if: steps.config.outputs.enabled == 'true'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+
+      - name: Log in to GitHub Container Registry
+        if: steps.config.outputs.enabled == 'true'
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mirror release image to Artifact Registry
+        if: steps.config.outputs.enabled == 'true'
+        id: image
+        env:
+          SOURCE_IMAGE: ghcr.io/${{ github.repository }}:release
+        run: |
+          set -euo pipefail
+          registry="${GCP_REGION}-docker.pkg.dev"
+          target_repository="${registry}/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REPOSITORY}/${GCP_CLOUD_RUN_SERVICE}"
+          target_image="${target_repository}:github-${GITHUB_RUN_ID}"
+
+          gcloud auth configure-docker "$registry" --quiet
+          docker pull --platform=linux/amd64 "$SOURCE_IMAGE"
+          docker tag "$SOURCE_IMAGE" "$target_image"
+          docker push "$target_image"
+
+          digest="$(gcloud artifacts docker images describe "$target_image" \
+            --project="$GCP_PROJECT_ID" \
+            --format='value(image_summary.digest)')"
+          echo "image=${target_repository}@${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Cloud Run revision
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          gcloud run deploy "$GCP_CLOUD_RUN_SERVICE" \
+            --project="$GCP_PROJECT_ID" \
+            --region="$GCP_REGION" \
+            --platform=managed \
+            --image="${{ steps.image.outputs.image }}" \
+            --quiet
+
+      - name: Deployment summary
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          service_url="$(gcloud run services describe "$GCP_CLOUD_RUN_SERVICE" \
+            --project="$GCP_PROJECT_ID" \
+            --region="$GCP_REGION" \
+            --format='value(status.url)')"
+          echo "### Cloud Run deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Service: \`$GCP_CLOUD_RUN_SERVICE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image: \`${{ steps.image.outputs.image }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: $service_url" >> "$GITHUB_STEP_SUMMARY"
+
