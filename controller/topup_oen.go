@@ -212,10 +212,19 @@ func RequestOenPay(c *gin.Context) {
 		OrderID:    tradeNo,
 		SuccessURL: paymentReturnPath("/wallet?show_history=true"),
 		FailureURL: paymentReturnPath("/wallet"),
-		Use3D:      setting.OenUse3D,
-		CustomID:   tradeNo,
-		UserID:     strconv.Itoa(userID),
-		Note:       fmt.Sprintf("Top up %d", request.Amount),
+		ProductDetails: []service.OenProductDetail{
+			{
+				ProductionCode: "BALANCE_TOPUP",
+				Description:    fmt.Sprintf("Top up %d balance units", request.Amount),
+				Quantity:       1,
+				Unit:           "unit",
+				UnitPrice:      paymentAmount,
+			},
+		},
+		Use3D:    setting.OenUse3D,
+		CustomID: tradeNo,
+		UserID:   strconv.Itoa(userID),
+		Note:     fmt.Sprintf("Top up %d", request.Amount),
 	})
 	if err != nil {
 		topUp.Status = common.TopUpStatusFailed
