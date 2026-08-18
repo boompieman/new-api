@@ -103,6 +103,13 @@ func InitOptionMap() {
 	common.OptionMap["CreemProducts"] = setting.CreemProducts
 	common.OptionMap["CreemTestMode"] = strconv.FormatBool(setting.CreemTestMode)
 	common.OptionMap["CreemWebhookSecret"] = setting.CreemWebhookSecret
+	common.OptionMap["OenEnabled"] = strconv.FormatBool(setting.OenEnabled)
+	common.OptionMap["OenApiToken"] = setting.OenApiToken
+	common.OptionMap["OenMerchantID"] = setting.OenMerchantID
+	common.OptionMap["OenTestMode"] = strconv.FormatBool(setting.OenTestMode)
+	common.OptionMap["OenUnitPriceTWD"] = strconv.FormatFloat(setting.OenUnitPriceTWD, 'f', -1, 64)
+	common.OptionMap["OenMinTopUp"] = strconv.Itoa(setting.OenMinTopUp)
+	common.OptionMap["OenUse3D"] = strconv.FormatBool(setting.OenUse3D)
 	common.OptionMap["WaffoEnabled"] = strconv.FormatBool(setting.WaffoEnabled)
 	common.OptionMap["WaffoApiKey"] = setting.WaffoApiKey
 	common.OptionMap["WaffoPrivateKey"] = setting.WaffoPrivateKey
@@ -475,6 +482,20 @@ func updateOptionMap(key string, value string) (err error) {
 		setting.CreemTestMode = value == "true"
 	case "CreemWebhookSecret":
 		setting.CreemWebhookSecret = value
+	case "OenEnabled":
+		setting.OenEnabled = value == "true"
+	case "OenApiToken":
+		setting.OenApiToken = value
+	case "OenMerchantID":
+		setting.OenMerchantID = value
+	case "OenTestMode":
+		setting.OenTestMode = value == "true"
+	case "OenUnitPriceTWD":
+		setting.OenUnitPriceTWD, _ = strconv.ParseFloat(value, 64)
+	case "OenMinTopUp":
+		setting.OenMinTopUp, _ = strconv.Atoi(value)
+	case "OenUse3D":
+		setting.OenUse3D = value == "true"
 	case "WaffoEnabled":
 		setting.WaffoEnabled = value == "true"
 	case "WaffoApiKey":
