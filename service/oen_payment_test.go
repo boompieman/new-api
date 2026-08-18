@@ -23,6 +23,14 @@ func TestOenPaymentClientCreateCheckout(t *testing.T) {
 		assert.Equal(t, "merchant", payload.MerchantID)
 		assert.Equal(t, int64(1200), payload.Amount)
 		assert.Equal(t, "ORDER-1", payload.OrderID)
+		require.Len(t, payload.ProductDetails, 1)
+		assert.Equal(t, OenProductDetail{
+			ProductionCode: "BALANCE_TOPUP",
+			Description:    "Top up 40 balance units",
+			Quantity:       1,
+			Unit:           "unit",
+			UnitPrice:      1200,
+		}, payload.ProductDetails[0])
 
 		writer.Header().Set("Content-Type", "application/json")
 		_, _ = writer.Write([]byte(`{"code":"S0000","message":"","data":{"id":"tx-1","transactionHid":"P123"}}`))
@@ -42,12 +50,29 @@ func TestOenPaymentClientCreateCheckout(t *testing.T) {
 		OrderID:    "ORDER-1",
 		SuccessURL: "https://example.com/success",
 		FailureURL: "https://example.com/failure",
-		Use3D:      true,
+		ProductDetails: []OenProductDetail{
+			{
+				ProductionCode: "BALANCE_TOPUP",
+				Description:    "Top up 40 balance units",
+				Quantity:       1,
+				Unit:           "unit",
+				UnitPrice:      1200,
+			},
+		},
+		Use3D: true,
 	})
 	require.NoError(t, err)
 	assert.Equal(t, "tx-1", checkout.ID)
 	assert.Equal(t, "P123", checkout.TransactionHID)
 	assert.Equal(t, "https://merchant.testing.oen.tw/checkout/tx-1", client.CheckoutURL(checkout.ID))
+}
+
+func TestOenPaymentClientCreateCheckoutRequiresProductDetails(t *testing.T) {
+	client := &OenPaymentClient{merchantID: "merchant"}
+
+	_, err := client.CreateCheckout(context.Background(), OenCheckoutRequest{})
+
+	require.EqualError(t, err, "OEN checkout product details are empty")
 }
 
 func TestOenPaymentClientGetTransaction(t *testing.T) {
