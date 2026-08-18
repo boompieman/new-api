@@ -235,7 +235,10 @@ export type ModelSettings = {
   AutomaticRetryStatusCodes: string
   'monitor_setting.auto_test_channel_enabled': boolean
   'monitor_setting.auto_test_channel_minutes': number
-  'monitor_setting.channel_test_mode': 'scheduled_all' | 'passive_recovery'
+  'monitor_setting.channel_test_mode':
+    | 'scheduled_all'
+    | 'auto_ban_only'
+    | 'passive_recovery'
   'channel_affinity_setting.enabled': boolean
   'channel_affinity_setting.switch_on_success': boolean
   'channel_affinity_setting.keep_on_channel_disabled': boolean
@@ -305,6 +308,13 @@ export type BillingSettings = {
   CreemWebhookSecret: string
   CreemTestMode: boolean
   CreemProducts: string
+  OenEnabled: boolean
+  OenApiToken: string
+  OenMerchantID: string
+  OenTestMode: boolean
+  OenUnitPriceTWD: number
+  OenMinTopUp: number
+  OenUse3D: boolean
   WaffoEnabled: boolean
   WaffoApiKey: string
   WaffoPrivateKey: string
