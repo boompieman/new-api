@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "Usage tracked automatically",
     "Use your API key with popular apps": "Use your API key with popular apps",
     "View costs anytime": "View costs anytime",
-    "View models & pricing": "View models & pricing"
+    "View models & pricing": "View models & pricing",
+    "Browse live model availability and pricing from your configured upstream providers.": "Browse live model availability and pricing from your configured upstream providers.",
+    "Built for production AI traffic": "Built for production AI traffic",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.",
+    "Connect the models your team already uses": "Connect the models your team already uses",
+    "Create an account and send your first request in minutes.": "Create an account and send your first request in minutes.",
+    "Everything you need to route, control, and understand model usage.": "Everything you need to route, control, and understand model usage.",
+    "From first request to production traffic, keep every step in one gateway.": "From first request to production traffic, keep every step in one gateway.",
+    "OmniAI, connect every AI model": "OmniAI, connect every AI model",
+    "One gateway for every AI model": "One gateway for every AI model",
+    "Open-source AI API gateway": "Open-source AI API gateway",
+    "Popular models": "Popular models",
+    "Pricing updates automatically from your configured models.": "Pricing updates automatically from your configured models.",
+    "Ready to connect your AI stack?": "Ready to connect your AI stack?",
+    "Start with one API key": "Start with one API key",
+    "Supported AI providers": "Supported AI providers",
+    "View all models": "View all models"
   }
 }

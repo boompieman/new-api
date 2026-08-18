@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "使用量を自動記録",
     "Use your API key with popular apps": "よく使うアプリでAPIキーを利用",
     "View costs anytime": "いつでも料金を確認",
-    "View models & pricing": "モデルと料金を見る"
+    "View models & pricing": "モデルと料金を見る",
+    "Browse live model availability and pricing from your configured upstream providers.": "設定済みの上流プロバイダーから、モデルの提供状況と料金をリアルタイムで確認できます。",
+    "Built for production AI traffic": "本番環境の AI トラフィック向けに設計",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "1 つの API で OpenAI、Claude、Gemini などに接続し、トラフィックのルーティング、コスト管理、利用状況の監視を一元化します。",
+    "Connect the models your team already uses": "チームが利用中のモデルに接続",
+    "Create an account and send your first request in minutes.": "アカウントを作成し、数分で最初のリクエストを送信できます。",
+    "Everything you need to route, control, and understand model usage.": "モデル利用のルーティング、制御、分析に必要な機能をすべて提供します。",
+    "From first request to production traffic, keep every step in one gateway.": "最初のリクエストから本番トラフィックまで、すべての工程を 1 つのゲートウェイに集約します。",
+    "OmniAI, connect every AI model": "OmniAIで、すべての AI モデルに接続",
+    "One gateway for every AI model": "すべての AI モデルを 1 つのゲートウェイで",
+    "Open-source AI API gateway": "オープンソースの AI API ゲートウェイ",
+    "Popular models": "人気のモデル",
+    "Pricing updates automatically from your configured models.": "料金は設定済みのモデルに基づいて自動更新されます。",
+    "Ready to connect your AI stack?": "AI スタックを接続する準備はできましたか？",
+    "Start with one API key": "1 つの API キーから開始",
+    "Supported AI providers": "対応 AI プロバイダー",
+    "View all models": "すべてのモデルを見る"
   }
 }

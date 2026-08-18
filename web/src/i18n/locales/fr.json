@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "Suivi automatique de l'utilisation",
     "Use your API key with popular apps": "Utilisez votre clé API avec vos applications préférées",
     "View costs anytime": "Consultez vos coûts à tout moment",
-    "View models & pricing": "Voir les modèles et les tarifs"
+    "View models & pricing": "Voir les modèles et les tarifs",
+    "Browse live model availability and pricing from your configured upstream providers.": "Consultez en temps réel la disponibilité et les tarifs des modèles de vos fournisseurs configurés.",
+    "Built for production AI traffic": "Conçu pour le trafic IA en production",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "Connectez OpenAI, Claude, Gemini et bien plus via une seule API. Acheminez le trafic, maîtrisez les coûts et suivez l’usage au même endroit.",
+    "Connect the models your team already uses": "Connectez les modèles déjà utilisés par votre équipe",
+    "Create an account and send your first request in minutes.": "Créez un compte et envoyez votre première requête en quelques minutes.",
+    "Everything you need to route, control, and understand model usage.": "Tout le nécessaire pour acheminer, contrôler et analyser l’utilisation des modèles.",
+    "From first request to production traffic, keep every step in one gateway.": "De la première requête au trafic de production, centralisez chaque étape dans une seule passerelle.",
+    "OmniAI, connect every AI model": "OmniAI, connectez tous les modèles d’IA",
+    "One gateway for every AI model": "Une passerelle pour tous les modèles IA",
+    "Open-source AI API gateway": "Passerelle API IA open source",
+    "Popular models": "Modèles populaires",
+    "Pricing updates automatically from your configured models.": "Les tarifs sont automatiquement actualisés à partir des modèles configurés.",
+    "Ready to connect your AI stack?": "Prêt à connecter votre stack IA ?",
+    "Start with one API key": "Commencez avec une seule clé API",
+    "Supported AI providers": "Fournisseurs IA pris en charge",
+    "View all models": "Voir tous les modèles"
   }
 }

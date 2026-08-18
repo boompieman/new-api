@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "Tự động ghi nhận mức sử dụng",
     "Use your API key with popular apps": "Dùng API key với các ứng dụng phổ biến",
     "View costs anytime": "Xem chi phí bất cứ lúc nào",
-    "View models & pricing": "Xem mô hình và bảng giá"
+    "View models & pricing": "Xem mô hình và bảng giá",
+    "Browse live model availability and pricing from your configured upstream providers.": "Xem trạng thái khả dụng và giá theo thời gian thực từ các nhà cung cấp đã cấu hình.",
+    "Built for production AI traffic": "Được xây dựng cho lưu lượng AI thực tế",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "Kết nối OpenAI, Claude, Gemini và nhiều mô hình khác qua một API. Định tuyến lưu lượng, quản lý chi phí và theo dõi mức sử dụng tại một nơi.",
+    "Connect the models your team already uses": "Kết nối các mô hình mà nhóm của bạn đang sử dụng",
+    "Create an account and send your first request in minutes.": "Tạo tài khoản và gửi yêu cầu đầu tiên chỉ trong vài phút.",
+    "Everything you need to route, control, and understand model usage.": "Mọi thứ bạn cần để định tuyến, kiểm soát và phân tích việc sử dụng mô hình.",
+    "From first request to production traffic, keep every step in one gateway.": "Từ yêu cầu đầu tiên đến lưu lượng thực tế, quản lý mọi bước trong một cổng duy nhất.",
+    "OmniAI, connect every AI model": "OmniAI, kết nối mọi mô hình AI",
+    "One gateway for every AI model": "Một cổng cho mọi mô hình AI",
+    "Open-source AI API gateway": "Cổng API AI mã nguồn mở",
+    "Popular models": "Mô hình phổ biến",
+    "Pricing updates automatically from your configured models.": "Giá được tự động cập nhật theo các mô hình đã cấu hình.",
+    "Ready to connect your AI stack?": "Sẵn sàng kết nối hệ thống AI của bạn?",
+    "Start with one API key": "Bắt đầu với một khóa API",
+    "Supported AI providers": "Nhà cung cấp AI được hỗ trợ",
+    "View all models": "Xem tất cả mô hình"
   }
 }

@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "自動記錄用量",
     "Use your API key with popular apps": "你的 API Key 可用於常用應用",
     "View costs anytime": "隨時查看費用",
-    "View models & pricing": "查看模型與價格"
+    "View models & pricing": "查看模型與價格",
+    "Browse live model availability and pricing from your configured upstream providers.": "查看已設定上游供應商的即時模型供應狀態與價格。",
+    "Built for production AI traffic": "為正式環境的 AI 流量而打造",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "透過一個 API 接入 OpenAI、Claude、Gemini 等模型，並在同一處完成流量路由、成本管理與用量監控。",
+    "Connect the models your team already uses": "接入團隊正在使用的模型",
+    "Create an account and send your first request in minutes.": "建立帳號，幾分鐘內送出第一個請求。",
+    "Everything you need to route, control, and understand model usage.": "集中提供模型路由、管控與用量分析所需的完整能力。",
+    "From first request to production traffic, keep every step in one gateway.": "從第一個請求到正式流量，每個步驟都在同一個閘道中完成。",
+    "OmniAI, connect every AI model": "OmniAI，接通所有 AI 模型",
+    "One gateway for every AI model": "一個閘道，接通所有 AI 模型",
+    "Open-source AI API gateway": "開源 AI API 閘道",
+    "Popular models": "熱門模型",
+    "Pricing updates automatically from your configured models.": "價格會依照已設定的模型自動更新。",
+    "Ready to connect your AI stack?": "準備好接入你的 AI 技術架構了嗎？",
+    "Start with one API key": "從一組 API Key 開始",
+    "Supported AI providers": "支援的 AI 供應商",
+    "View all models": "查看全部模型"
   }
 }

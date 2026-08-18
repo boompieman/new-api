@@ -6737,6 +6737,22 @@
     "Usage tracked automatically": "Автоматический учёт расхода",
     "Use your API key with popular apps": "Используйте API-ключ в популярных приложениях",
     "View costs anytime": "Просматривайте расходы в любое время",
-    "View models & pricing": "Модели и цены"
+    "View models & pricing": "Модели и цены",
+    "Browse live model availability and pricing from your configured upstream providers.": "Просматривайте актуальную доступность и цены моделей от настроенных поставщиков.",
+    "Built for production AI traffic": "Создано для промышленного ИИ-трафика",
+    "Connect OpenAI, Claude, Gemini, and more through one API. Route traffic, manage costs, and monitor usage from a single place.": "Подключайте OpenAI, Claude, Gemini и другие модели через единый API. Управляйте маршрутизацией, затратами и использованием в одном месте.",
+    "Connect the models your team already uses": "Подключите модели, которыми уже пользуется ваша команда",
+    "Create an account and send your first request in minutes.": "Создайте аккаунт и отправьте первый запрос за несколько минут.",
+    "Everything you need to route, control, and understand model usage.": "Все необходимое для маршрутизации, контроля и анализа использования моделей.",
+    "From first request to production traffic, keep every step in one gateway.": "От первого запроса до промышленного трафика — все этапы в одном шлюзе.",
+    "OmniAI, connect every AI model": "OmniAI — подключение ко всем моделям ИИ",
+    "One gateway for every AI model": "Единый шлюз для всех моделей ИИ",
+    "Open-source AI API gateway": "Шлюз AI API с открытым исходным кодом",
+    "Popular models": "Популярные модели",
+    "Pricing updates automatically from your configured models.": "Цены автоматически обновляются на основе настроенных моделей.",
+    "Ready to connect your AI stack?": "Готовы подключить свой стек ИИ?",
+    "Start with one API key": "Начните с одного API-ключа",
+    "Supported AI providers": "Поддерживаемые поставщики ИИ",
+    "View all models": "Посмотреть все модели"
   }
 }
