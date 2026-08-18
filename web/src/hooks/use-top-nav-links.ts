@@ -88,10 +88,16 @@ export function useTopNavLinks(): TopNavLink[] {
 
   // Docs (supports external links)
   if (modules?.docs !== false) {
-    if (docsLink) {
-      links.push({ title: t('Docs'), href: docsLink, external: true })
-    } else {
-      links.push({ title: t('Docs'), href: '/docs' })
+    const docsHref = docsLink || '/docs'
+    const externalDocs = /^https?:\/\//i.test(docsHref)
+    links.push({
+      title: t('Docs'),
+      href: docsHref,
+      external: externalDocs,
+    })
+
+    if (docsHref.replace(/\/+$/, '') !== '/docs') {
+      links.push({ title: t('API Guide'), href: '/docs' })
     }
   }
 
