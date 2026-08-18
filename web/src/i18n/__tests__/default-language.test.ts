@@ -50,6 +50,7 @@ describe('default interface language', () => {
     const { default: i18n } = await import('../config')
 
     expect(i18n.resolvedLanguage).toBe('zhTW')
+    expect(document.documentElement.lang).toBe('zh-TW')
   })
 
   it('ignores browser-detected language values cached by older releases', async () => {
@@ -66,5 +67,14 @@ describe('default interface language', () => {
     const { default: i18n } = await import('../config')
 
     expect(i18n.resolvedLanguage).toBe('en')
+    expect(document.documentElement.lang).toBe('en')
+  })
+
+  it('keeps the document language in sync with interface changes', async () => {
+    const { default: i18n } = await import('../config')
+
+    await i18n.changeLanguage('ja')
+
+    expect(document.documentElement.lang).toBe('ja')
   })
 })

@@ -23,6 +23,7 @@ import { initReactI18next } from 'react-i18next'
 import {
   convertDetectedLanguage,
   DEFAULT_INTERFACE_LANGUAGE,
+  toIntlLocale,
 } from './languages'
 import en from './locales/en.json'
 import fr from './locales/fr.json'
@@ -41,6 +42,11 @@ export const resources = {
   vi,
   zhTW,
 } as const
+
+i18n.on('languageChanged', (language) => {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = toIntlLocale(language) ?? 'zh-TW'
+})
 
 i18n
   .use(LanguageDetector)
