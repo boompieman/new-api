@@ -67,6 +67,37 @@ func TestCreemWebhookEnabledRequiresTopUpAndWebhookConfig(t *testing.T) {
 	require.False(t, isCreemWebhookEnabled())
 }
 
+func TestOenTopUpAndWebhookAvailability(t *testing.T) {
+	confirmPaymentComplianceForTest(t)
+	originalEnabled := setting.OenEnabled
+	originalToken := setting.OenApiToken
+	originalMerchantID := setting.OenMerchantID
+	originalUnitPrice := setting.OenUnitPriceTWD
+	originalMinTopUp := setting.OenMinTopUp
+	t.Cleanup(func() {
+		setting.OenEnabled = originalEnabled
+		setting.OenApiToken = originalToken
+		setting.OenMerchantID = originalMerchantID
+		setting.OenUnitPriceTWD = originalUnitPrice
+		setting.OenMinTopUp = originalMinTopUp
+	})
+
+	setting.OenEnabled = true
+	setting.OenApiToken = "token"
+	setting.OenMerchantID = "merchant"
+	setting.OenUnitPriceTWD = 30
+	setting.OenMinTopUp = 1
+	require.True(t, isOenTopUpEnabled())
+	require.True(t, isOenWebhookEnabled())
+
+	setting.OenUnitPriceTWD = 0
+	require.False(t, isOenTopUpEnabled())
+	require.True(t, isOenWebhookEnabled())
+
+	setting.OenApiToken = ""
+	require.False(t, isOenWebhookEnabled())
+}
+
 func TestWaffoWebhookEnabledRequiresTopUpAndWebhookConfig(t *testing.T) {
 	confirmPaymentComplianceForTest(t)
 	originalEnabled := setting.WaffoEnabled
