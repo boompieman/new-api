@@ -1,10 +1,6 @@
 name: Release CI
 
 on:
-  pull_request:
-    branches:
-      - release
-    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches:
       - release
@@ -14,13 +10,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-ci-${{ github.event.pull_request.number || github.ref }}
+  group: release-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   backend:
     name: Backend vet, build, and test
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -62,7 +57,6 @@ jobs:
 
   frontend:
     name: Frontend typecheck, test, and build
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -99,7 +93,6 @@ jobs:
 
   container:
     name: Container build
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     timeout-minutes: 20
