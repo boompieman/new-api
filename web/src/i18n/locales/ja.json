@@ -2596,7 +2596,7 @@
     "footer.columns.related.links.oneApi": "1つのAPI",
     "footer.columns.related.title": "関連プロジェクト",
     "footer.defaultCopyright": "すべての権利を留保します。",
-    "footer.new\u0061pi.projectAttributionSuffix": "すべての権利を留保します。プロジェクトコントリビューターにより設計・開発されています。",
+    "footer.newapi.projectAttributionSuffix": "すべての権利を留保します。プロジェクトコントリビューターにより設計・開発されています。",
     "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.": "高度なカスタムチャネルでは、プロトコル変換を行わない /v1/responses ルートにのみ適用されます。",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "2025 年 5 月 10 日以降に追加されたチャネルの場合、デプロイ時にモデル名から「.」を削除する必要はありません",
     "For private deployments, format: https://fastgpt.run/api/openapi": "プライベートデプロイメントの場合、形式: https://fastgpt.run/api/openapi",
@@ -6721,6 +6721,22 @@
     "Local check": "ローカルチェック",
     "Responses WebSocket": "Responses WebSocket",
     "Cross-group retry": "グループ横断リトライ",
-    "Request policy decisions": "リクエストポリシーの判断"
+    "Request policy decisions": "リクエストポリシーの判断",
+    "Access multiple AI models": "複数のAIモデルを利用",
+    "Create free account": "無料アカウントを作成",
+    "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.": "NewAPI の Base URL と APIキーを入力すると、Cherry Studio、CC Switch などに接続できます。",
+    "Manage API keys": "APIキーを管理",
+    "One API key,": "1つのAPIキーで",
+    "One API key, multiple compatible protocols": "1つのAPIキーで複数プロトコルに対応",
+    "Overnight range": "日跨ぎ範囲",
+    "Pass request body directly to upstream": "リクエストボディを直接アップストリームに渡す",
+    "Pay as you go": "従量課金",
+    "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.": "登録して残高をチャージすると、OpenAI、Claude、Gemini互換APIから利用可能なモデルにアクセスできます。料金、残高、使用量を一元管理できます。",
+    "Top up API balance": "API残高をチャージ",
+    "Unified API · Pay as you go": "統一API · 従量課金",
+    "Usage tracked automatically": "使用量を自動記録",
+    "Use your API key with popular apps": "よく使うアプリでAPIキーを利用",
+    "View costs anytime": "いつでも料金を確認",
+    "View models & pricing": "モデルと料金を見る"
   }
 }

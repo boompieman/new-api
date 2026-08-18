@@ -2596,7 +2596,7 @@
     "footer.columns.related.links.oneApi": "One API",
     "footer.columns.related.title": "Các Dự Án Liên Quan",
     "footer.defaultCopyright": "Bản quyền được bảo lưu.",
-    "footer.new\u0061pi.projectAttributionSuffix": "Bản quyền được bảo lưu. Được thiết kế và phát triển bởi các cộng tác viên dự án.",
+    "footer.newapi.projectAttributionSuffix": "Bản quyền được bảo lưu. Được thiết kế và phát triển bởi các cộng tác viên dự án.",
     "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.": "Với kênh tùy chỉnh nâng cao, thiết lập này chỉ áp dụng cho các route /v1/responses không chuyển đổi giao thức.",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "Đối với các kênh được thêm sau ngày 10 tháng 5 năm 2025, không cần loại bỏ \".\" khỏi tên mô hình trong quá trình triển khai",
     "For private deployments, format: https://fastgpt.run/api/openapi": "Đối với các triển khai riêng tư, định dạng: https://fastgpt.run/api/openapi",
@@ -6721,6 +6721,22 @@
     "Local check": "Kiểm tra cục bộ",
     "Responses WebSocket": "Responses WebSocket",
     "Cross-group retry": "Thử lại liên nhóm",
-    "Request policy decisions": "Quyết định chính sách yêu cầu"
+    "Request policy decisions": "Quyết định chính sách yêu cầu",
+    "Access multiple AI models": "Truy cập nhiều mô hình AI",
+    "Create free account": "Tạo tài khoản miễn phí",
+    "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.": "Nhập Base URL NewAPI và API key để kết nối Cherry Studio, CC Switch và các ứng dụng khác.",
+    "Manage API keys": "Quản lý API key",
+    "One API key,": "Một API key,",
+    "One API key, multiple compatible protocols": "Một API key, tương thích nhiều giao thức",
+    "Overnight range": "Khoảng qua nửa đêm",
+    "Pass request body directly to upstream": "Truyền phần thân yêu cầu trực tiếp lên upstream",
+    "Pay as you go": "Trả phí theo mức sử dụng",
+    "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.": "Đăng ký và nạp tiền để truy cập các mô hình hiện có qua API tương thích với OpenAI, Claude và Gemini. Quản lý giá, số dư và mức sử dụng tại một nơi.",
+    "Top up API balance": "Nạp số dư API",
+    "Unified API · Pay as you go": "API hợp nhất · Trả phí theo mức sử dụng",
+    "Usage tracked automatically": "Tự động ghi nhận mức sử dụng",
+    "Use your API key with popular apps": "Dùng API key với các ứng dụng phổ biến",
+    "View costs anytime": "Xem chi phí bất cứ lúc nào",
+    "View models & pricing": "Xem mô hình và bảng giá"
   }
 }

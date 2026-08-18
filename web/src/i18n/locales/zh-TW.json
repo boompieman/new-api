@@ -2596,7 +2596,7 @@
     "footer.columns.related.links.oneApi": "One API",
     "footer.columns.related.title": "相關項目",
     "footer.defaultCopyright": "版權所有。",
-    "footer.new\u0061pi.projectAttributionSuffix": "版權所有，由項目貢獻者設計與開發。",
+    "footer.newapi.projectAttributionSuffix": "版權所有，由項目貢獻者設計與開發。",
     "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.": "進階自訂渠道僅對 /v1/responses 且不做協定轉換的路由生效。",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "對於 2025 年 5 月 10 日之後新增的渠道，在部署時無需從模型名稱中移除 \".\"",
     "For private deployments, format: https://fastgpt.run/api/openapi": "對於私有部署，格式為：https://fastgpt.run/api/openapi",
@@ -6721,6 +6721,22 @@
     "Local check": "本地檢查",
     "Responses WebSocket": "Responses WebSocket",
     "Cross-group retry": "跨分組重試",
-    "Request policy decisions": "請求策略決策"
+    "Request policy decisions": "請求策略決策",
+    "Access multiple AI models": "串接多種 AI 模型",
+    "Create free account": "免費註冊",
+    "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.": "填入 NewAPI Base URL 與 API Key，即可連接 Cherry Studio、CC Switch 等應用。",
+    "Manage API keys": "管理 API Key",
+    "One API key,": "一組 API Key，",
+    "One API key, multiple compatible protocols": "一組 API Key，相容多種協定",
+    "Overnight range": "跨日範圍",
+    "Pass request body directly to upstream": "將請求體直接傳遞給上游",
+    "Pay as you go": "按量計費",
+    "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.": "註冊並儲值後，即可透過相容 OpenAI、Claude 與 Gemini 的 API 使用平台模型。價格、餘額與用量集中管理。",
+    "Top up API balance": "儲值 API 額度",
+    "Unified API · Pay as you go": "統一 API · 按量計費",
+    "Usage tracked automatically": "自動記錄用量",
+    "Use your API key with popular apps": "你的 API Key 可用於常用應用",
+    "View costs anytime": "隨時查看費用",
+    "View models & pricing": "查看模型與價格"
   }
 }

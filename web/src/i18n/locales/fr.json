@@ -2596,7 +2596,7 @@
     "footer.columns.related.links.oneApi": "One API",
     "footer.columns.related.title": "Projets liés",
     "footer.defaultCopyright": "Tous droits réservés.",
-    "footer.new\u0061pi.projectAttributionSuffix": "Tous droits réservés. Conçu et développé par les contributeurs du projet.",
+    "footer.newapi.projectAttributionSuffix": "Tous droits réservés. Conçu et développé par les contributeurs du projet.",
     "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.": "Pour les canaux personnalisés avancés, ceci ne s’applique qu’aux routes /v1/responses sans conversion de protocole.",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "Pour les canaux ajoutés après le 10 mai 2025, pas besoin de supprimer \".\" des noms de modèles lors du déploiement",
     "For private deployments, format: https://fastgpt.run/api/openapi": "Pour les déploiements privés, format : https://fastgpt.run/api/openapi",
@@ -6721,6 +6721,22 @@
     "Local check": "Vérification locale",
     "Responses WebSocket": "Responses WebSocket",
     "Cross-group retry": "Nouvelle tentative inter-groupes",
-    "Request policy decisions": "Décisions de la politique de requête"
+    "Request policy decisions": "Décisions de la politique de requête",
+    "Access multiple AI models": "Accédez à plusieurs modèles d'IA",
+    "Create free account": "Créer un compte gratuit",
+    "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.": "Saisissez votre Base URL NewAPI et votre clé API pour connecter Cherry Studio, CC Switch et plus encore.",
+    "Manage API keys": "Gérer les clés API",
+    "One API key,": "Une seule clé API,",
+    "One API key, multiple compatible protocols": "Une clé API, plusieurs protocoles compatibles",
+    "Overnight range": "Plage nocturne",
+    "Pass request body directly to upstream": "Transmettre le corps de la requête directement à l'upstream",
+    "Pay as you go": "Paiement à l'usage",
+    "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.": "Inscrivez-vous et rechargez votre solde pour accéder aux modèles disponibles via des API compatibles avec OpenAI, Claude et Gemini. Gérez les tarifs, le solde et l'utilisation au même endroit.",
+    "Top up API balance": "Recharger le solde API",
+    "Unified API · Pay as you go": "API unifiée · Paiement à l'usage",
+    "Usage tracked automatically": "Suivi automatique de l'utilisation",
+    "Use your API key with popular apps": "Utilisez votre clé API avec vos applications préférées",
+    "View costs anytime": "Consultez vos coûts à tout moment",
+    "View models & pricing": "Voir les modèles et les tarifs"
   }
 }

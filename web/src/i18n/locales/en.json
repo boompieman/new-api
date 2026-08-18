@@ -2596,7 +2596,7 @@
     "footer.columns.related.links.oneApi": "One API",
     "footer.columns.related.title": "Related Projects",
     "footer.defaultCopyright": "All rights reserved.",
-    "footer.new\u0061pi.projectAttributionSuffix": "All rights reserved. Designed and developed by the project contributors.",
+    "footer.newapi.projectAttributionSuffix": "All rights reserved. Designed and developed by the project contributors.",
     "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.": "For advanced custom channels this applies only to /v1/responses routes without protocol conversion.",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment",
     "For private deployments, format: https://fastgpt.run/api/openapi": "For private deployments, format: https://fastgpt.run/api/openapi",
@@ -6721,6 +6721,22 @@
     "Local check": "Local check",
     "Responses WebSocket": "Responses WebSocket",
     "Cross-group retry": "Cross-group retry",
-    "Request policy decisions": "Request policy decisions"
+    "Request policy decisions": "Request policy decisions",
+    "Access multiple AI models": "Access multiple AI models",
+    "Create free account": "Create free account",
+    "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.": "Enter your NewAPI Base URL and API key to connect Cherry Studio, CC Switch, and more.",
+    "Manage API keys": "Manage API keys",
+    "One API key,": "One API key,",
+    "One API key, multiple compatible protocols": "One API key, multiple compatible protocols",
+    "Overnight range": "Overnight range",
+    "Pass request body directly to upstream": "Pass request body directly to upstream",
+    "Pay as you go": "Pay as you go",
+    "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.": "Sign up and top up to access available models through APIs compatible with OpenAI, Claude, and Gemini. Manage pricing, balance, and usage in one place.",
+    "Top up API balance": "Top up API balance",
+    "Unified API · Pay as you go": "Unified API · Pay as you go",
+    "Usage tracked automatically": "Usage tracked automatically",
+    "Use your API key with popular apps": "Use your API key with popular apps",
+    "View costs anytime": "View costs anytime",
+    "View models & pricing": "View models & pricing"
   }
 }
