@@ -30,16 +30,25 @@ type OenPaymentClient struct {
 }
 
 type OenCheckoutRequest struct {
-	MerchantID string `json:"merchantId"`
-	Amount     int64  `json:"amount"`
-	Currency   string `json:"currency"`
-	OrderID    string `json:"orderId"`
-	SuccessURL string `json:"successUrl"`
-	FailureURL string `json:"failureUrl"`
-	Use3D      bool   `json:"use3d"`
-	CustomID   string `json:"customId,omitempty"`
-	UserID     string `json:"userId,omitempty"`
-	Note       string `json:"note,omitempty"`
+	MerchantID     string             `json:"merchantId"`
+	Amount         int64              `json:"amount"`
+	Currency       string             `json:"currency"`
+	OrderID        string             `json:"orderId"`
+	SuccessURL     string             `json:"successUrl"`
+	FailureURL     string             `json:"failureUrl"`
+	ProductDetails []OenProductDetail `json:"productDetails"`
+	Use3D          bool               `json:"use3d"`
+	CustomID       string             `json:"customId,omitempty"`
+	UserID         string             `json:"userId,omitempty"`
+	Note           string             `json:"note,omitempty"`
+}
+
+type OenProductDetail struct {
+	ProductionCode string `json:"productionCode"`
+	Description    string `json:"description"`
+	Quantity       int64  `json:"quantity"`
+	Unit           string `json:"unit"`
+	UnitPrice      int64  `json:"unitPrice"`
 }
 
 type OenCheckoutData struct {
@@ -91,6 +100,9 @@ func NewOenPaymentClient(token string, merchantID string, testMode bool) (*OenPa
 }
 
 func (client *OenPaymentClient) CreateCheckout(ctx context.Context, request OenCheckoutRequest) (*OenCheckoutData, error) {
+	if len(request.ProductDetails) == 0 {
+		return nil, fmt.Errorf("OEN checkout product details are empty")
+	}
 	request.MerchantID = client.merchantID
 	var response oenAPIResponse[OenCheckoutData]
 	if err := client.do(ctx, http.MethodPost, "/checkout", request, &response); err != nil {
