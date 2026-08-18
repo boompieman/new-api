@@ -77,6 +77,7 @@ export function convertDetectedLanguage(value: string): string {
   ) {
     return 'zhTW'
   }
+  if (lower === 'zhcn') return 'zhCN'
   return 'zhCN'
 }
 
