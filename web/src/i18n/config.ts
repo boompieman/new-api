@@ -58,8 +58,11 @@ i18n
     detection: {
       // Respect an explicit saved choice. New visitors default to Traditional
       // Chinese through fallbackLng instead of inheriting the browser locale.
+      // A versioned key avoids retaining locale values that older releases
+      // automatically cached from the browser without an explicit choice.
       order: ['localStorage'],
       caches: ['localStorage'],
+      lookupLocalStorage: 'newApiInterfaceLanguage',
       // Browsers report `zh-CN`/`zh-TW`/`zh`; map them onto our `zhCN`/`zhTW`
       // codes (non-Chinese codes pass through for normal supportedLngs matching).
       convertDetectedLanguage,
