@@ -94,7 +94,9 @@ jobs:
 
   container:
     name: Container build
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    # Pull requests still validate the production container. After merge, the
+    # publishing workflow reuses this cache while building the deployable image.
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -112,5 +114,5 @@ jobs:
           context: .
           platforms: linux/amd64
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=release-container
+          cache-to: type=gha,mode=max,scope=release-container
