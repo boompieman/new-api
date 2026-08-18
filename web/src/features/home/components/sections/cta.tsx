@@ -16,11 +16,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimateInView } from '@/components/animate-in-view'
 import { Button } from '@/components/ui/button'
 
 interface CTAProps {
@@ -31,54 +31,35 @@ interface CTAProps {
 export function CTA(props: CTAProps) {
   const { t } = useTranslation()
 
-  if (props.isAuthenticated) {
-    return null
-  }
-
   return (
-    <section className='relative z-10 overflow-hidden px-6 py-24 md:py-32'>
-      {/* Gradient mesh background */}
-      <div
-        aria-hidden
-        className='absolute inset-0 -z-10 opacity-20 dark:opacity-[0.08]'
-        style={{
-          background: [
-            'radial-gradient(ellipse 50% 50% at 30% 50%, oklch(0.7 0.15 250 / 70%) 0%, transparent 70%)',
-            'radial-gradient(ellipse 40% 40% at 70% 40%, oklch(0.65 0.12 200 / 50%) 0%, transparent 70%)',
-          ].join(', '),
-        }}
-      />
-
-      <AnimateInView
-        className='mx-auto max-w-2xl text-center'
-        animation='scale-in'
-      >
-        <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-4xl'>
-          {t('Ready to simplify')}
-          <br />
-          <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-            {t('your AI integration?')}
-          </span>
-        </h2>
-        <p className='text-muted-foreground/80 mx-auto mt-5 max-w-md text-sm leading-relaxed md:text-base'>
-          {t(
-            'Deploy your own gateway and start routing requests through your configured upstream services.'
-          )}
-        </p>
-        <div className='mt-8 flex items-center justify-center gap-3'>
-          <Button className='group rounded-lg' render={<Link to='/sign-up' />}>
-            {t('Get Started')}
-            <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
+    <section className='px-5 py-16 sm:px-6 md:py-20'>
+      <div className='bg-foreground text-background mx-auto flex max-w-6xl flex-col justify-between gap-8 rounded-xl px-6 py-9 sm:px-9 md:flex-row md:items-center md:py-10'>
+        <div>
+          <h2 className='text-2xl font-semibold tracking-tight md:text-3xl'>
+            {t('Ready to connect your AI stack?')}
+          </h2>
+          <p className='text-background/65 mt-2 text-sm leading-6'>
+            {t('Create an account and send your first request in minutes.')}
+          </p>
+        </div>
+        <div className='flex shrink-0 flex-wrap gap-2.5'>
+          <Button
+            variant='secondary'
+            className='h-10 px-4'
+            render={<Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />}
+          >
+            {t(props.isAuthenticated ? 'Manage API keys' : 'Get Started')}
+            <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
           </Button>
           <Button
-            variant='outline'
-            className='border-border/50 hover:border-border hover:bg-muted/50 rounded-lg'
+            variant='ghost'
+            className='text-background hover:bg-background/10 hover:text-background h-10 px-4'
             render={<Link to='/pricing' />}
           >
             {t('View Pricing')}
           </Button>
         </div>
-      </AnimateInView>
+      </div>
     </section>
   )
 }
