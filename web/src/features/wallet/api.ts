@@ -29,6 +29,7 @@ import type {
   AmountResponse,
   PaymentResponse,
   StripePaymentResponse,
+  OenPaymentResponse,
   AffiliateCodeResponse,
   AffiliateTransferResponse,
   BillingHistoryResponse,
@@ -94,6 +95,15 @@ export async function calculateStripeAmount(
   return res.data
 }
 
+export async function calculateOenAmount(
+  request: AmountRequest
+): Promise<AmountResponse> {
+  const res = await api.post('/api/user/oen/amount', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
 /**
  * Calculate payment amount for Waffo payment
  */
@@ -128,6 +138,15 @@ export async function requestStripePayment(
   request: PaymentRequest
 ): Promise<StripePaymentResponse> {
   const res = await api.post('/api/user/stripe/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
+export async function requestOenPayment(
+  request: PaymentRequest
+): Promise<OenPaymentResponse> {
+  const res = await api.post('/api/user/oen/pay', request, {
     skipBusinessError: true,
   } as Record<string, unknown>)
   return res.data

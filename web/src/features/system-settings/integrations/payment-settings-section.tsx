@@ -18,6 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import i18next from 'i18next'
 import { Code2, Eye, ShieldAlert } from 'lucide-react'
 import * as React from 'react'
 import { useForm, type Resolver } from 'react-hook-form'
@@ -159,6 +160,23 @@ const paymentSchema = z.object({
       })
     }
   }),
+  OenEnabled: z.boolean(),
+  OenApiToken: z.string(),
+  OenMerchantID: z.string().superRefine((value, ctx) => {
+    const trimmed = value.trim()
+    if (trimmed && !/^[A-Za-z0-9-]+$/.test(trimmed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: i18next.t(
+          'OEN merchant ID can only contain letters, numbers, and hyphens'
+        ),
+      })
+    }
+  }),
+  OenTestMode: z.boolean(),
+  OenUnitPriceTWD: z.coerce.number().min(0),
+  OenMinTopUp: z.coerce.number().min(1),
+  OenUse3D: z.boolean(),
   WaffoEnabled: z.boolean(),
   WaffoApiKey: z.string(),
   WaffoPrivateKey: z.string(),
@@ -437,6 +455,13 @@ export function PaymentSettingsSection({
       CreemWebhookSecret: values.CreemWebhookSecret.trim(),
       CreemTestMode: values.CreemTestMode,
       CreemProducts: values.CreemProducts.trim(),
+      OenEnabled: values.OenEnabled,
+      OenApiToken: values.OenApiToken.trim(),
+      OenMerchantID: values.OenMerchantID.trim(),
+      OenTestMode: values.OenTestMode,
+      OenUnitPriceTWD: values.OenUnitPriceTWD,
+      OenMinTopUp: values.OenMinTopUp,
+      OenUse3D: values.OenUse3D,
       WaffoEnabled: values.WaffoEnabled,
       WaffoSandbox: values.WaffoSandbox,
       WaffoMerchantId: values.WaffoMerchantId.trim(),
@@ -482,6 +507,13 @@ export function PaymentSettingsSection({
       CreemWebhookSecret: initialRef.current.CreemWebhookSecret.trim(),
       CreemTestMode: initialRef.current.CreemTestMode,
       CreemProducts: initialRef.current.CreemProducts.trim(),
+      OenEnabled: initialRef.current.OenEnabled,
+      OenApiToken: initialRef.current.OenApiToken.trim(),
+      OenMerchantID: initialRef.current.OenMerchantID.trim(),
+      OenTestMode: initialRef.current.OenTestMode,
+      OenUnitPriceTWD: initialRef.current.OenUnitPriceTWD,
+      OenMinTopUp: initialRef.current.OenMinTopUp,
+      OenUse3D: initialRef.current.OenUse3D,
       WaffoEnabled: initialRef.current.WaffoEnabled,
       WaffoSandbox: initialRef.current.WaffoSandbox,
       WaffoMerchantId: initialRef.current.WaffoMerchantId.trim(),
@@ -627,6 +659,34 @@ export function PaymentSettingsSection({
       normalizeJsonForComparison(initial.CreemProducts)
     ) {
       updates.push({ key: 'CreemProducts', value: sanitized.CreemProducts })
+    }
+
+    if (sanitized.OenEnabled !== initial.OenEnabled) {
+      updates.push({ key: 'OenEnabled', value: sanitized.OenEnabled })
+    }
+
+    if (sanitized.OenApiToken) {
+      updates.push({ key: 'OenApiToken', value: sanitized.OenApiToken })
+    }
+
+    if (sanitized.OenMerchantID !== initial.OenMerchantID) {
+      updates.push({ key: 'OenMerchantID', value: sanitized.OenMerchantID })
+    }
+
+    if (sanitized.OenTestMode !== initial.OenTestMode) {
+      updates.push({ key: 'OenTestMode', value: sanitized.OenTestMode })
+    }
+
+    if (sanitized.OenUnitPriceTWD !== initial.OenUnitPriceTWD) {
+      updates.push({ key: 'OenUnitPriceTWD', value: sanitized.OenUnitPriceTWD })
+    }
+
+    if (sanitized.OenMinTopUp !== initial.OenMinTopUp) {
+      updates.push({ key: 'OenMinTopUp', value: sanitized.OenMinTopUp })
+    }
+
+    if (sanitized.OenUse3D !== initial.OenUse3D) {
+      updates.push({ key: 'OenUse3D', value: sanitized.OenUse3D })
     }
 
     if (sanitized.WaffoEnabled !== initial.WaffoEnabled) {
@@ -877,11 +937,12 @@ export function PaymentSettingsSection({
           />
           <Tabs defaultValue='general' className='min-w-0'>
             <div className='overflow-x-auto pb-1'>
-              <TabsList className='grid min-w-[44rem] grid-cols-6'>
+              <TabsList className='grid min-w-[50rem] grid-cols-7'>
                 <TabsTrigger value='general'>{t('General')}</TabsTrigger>
                 <TabsTrigger value='epay'>Epay</TabsTrigger>
                 <TabsTrigger value='stripe'>{t('Stripe')}</TabsTrigger>
                 <TabsTrigger value='creem'>Creem</TabsTrigger>
+                <TabsTrigger value='oen'>OEN</TabsTrigger>
                 <TabsTrigger value='waffo-pancake'>Waffo Pancake</TabsTrigger>
                 <TabsTrigger value='waffo'>Waffo</TabsTrigger>
               </TabsList>
@@ -1601,6 +1662,199 @@ export function PaymentSettingsSection({
                     </FormItem>
                   )}
                 />
+              </div>
+            </TabsContent>
+
+            <TabsContent value='oen' className={paymentTabContentClassName}>
+              <div className='space-y-4'>
+                <div>
+                  <h3 className='text-lg font-medium'>OEN Payment</h3>
+                  <p className='text-muted-foreground text-sm'>
+                    {t('Configuration for OEN Payment integration')}
+                  </p>
+                </div>
+
+                <Alert>
+                  <ShieldAlert className='h-4 w-4' />
+                  <AlertTitle>{t('Webhook Configuration:')}</AlertTitle>
+                  <AlertDescription className='space-y-1'>
+                    <div>
+                      {t('Webhook URL:')}{' '}
+                      <code className='bg-muted rounded px-1 py-0.5 text-xs'>
+                        {'<ServerAddress>/api/oen/webhook'}
+                      </code>
+                    </div>
+                    <div>
+                      {t(
+                        'Configure this URL in OEN CRM. Each callback is verified against the OEN transaction API before balance is credited.'
+                      )}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <div className='grid gap-6 md:grid-cols-2'>
+                  <FormField
+                    control={form.control}
+                    name='OenEnabled'
+                    render={({ field }) => (
+                      <SettingsSwitchItem>
+                        <SettingsSwitchContent>
+                          <FormLabel>{t('Enable OEN Payment')}</FormLabel>
+                          <FormDescription>
+                            {t(
+                              'Show OEN Payment as a top-up option when configuration is complete.'
+                            )}
+                          </FormDescription>
+                        </SettingsSwitchContent>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </SettingsSwitchItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='OenTestMode'
+                    render={({ field }) => (
+                      <SettingsSwitchItem>
+                        <SettingsSwitchContent>
+                          <FormLabel>{t('Test Mode')}</FormLabel>
+                          <FormDescription>
+                            {t(
+                              'Use the OEN testing environment and test token.'
+                            )}
+                          </FormDescription>
+                        </SettingsSwitchContent>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </SettingsSwitchItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='OenUse3D'
+                    render={({ field }) => (
+                      <SettingsSwitchItem>
+                        <SettingsSwitchContent>
+                          <FormLabel>{t('3D Secure')}</FormLabel>
+                          <FormDescription>
+                            {t(
+                              'Require 3D Secure verification for card payments.'
+                            )}
+                          </FormDescription>
+                        </SettingsSwitchContent>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </SettingsSwitchItem>
+                    )}
+                  />
+                </div>
+
+                <div className='grid gap-6 md:grid-cols-2'>
+                  <FormField
+                    control={form.control}
+                    name='OenMerchantID'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('OEN merchant ID')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder='your-domain'
+                            autoComplete='off'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t(
+                            'Enter the domain identifier assigned by OEN, without .oen.tw.'
+                          )}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='OenApiToken'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('API Token')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='password'
+                            placeholder={t('Enter OEN API token')}
+                            autoComplete='new-password'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('Leave blank to keep the currently saved token.')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='OenUnitPriceTWD'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('TWD per balance unit')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            step='0.01'
+                            min={0}
+                            {...safeNumberFieldProps(field)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t(
+                            'Amount in TWD charged for each balance unit before group ratio and discounts.'
+                          )}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='OenMinTopUp'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('Minimum top-up amount')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            step='1'
+                            min={1}
+                            {...safeNumberFieldProps(field)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('Minimum balance units allowed per OEN payment.')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </TabsContent>
 

@@ -153,6 +153,13 @@ const BILLING_SECTIONS = [
           CreemWebhookSecret: settings.CreemWebhookSecret,
           CreemTestMode: settings.CreemTestMode,
           CreemProducts: settings.CreemProducts,
+          OenEnabled: settings.OenEnabled ?? false,
+          OenApiToken: settings.OenApiToken ?? '',
+          OenMerchantID: settings.OenMerchantID ?? '',
+          OenTestMode: settings.OenTestMode ?? true,
+          OenUnitPriceTWD: settings.OenUnitPriceTWD ?? 0,
+          OenMinTopUp: settings.OenMinTopUp ?? 1,
+          OenUse3D: settings.OenUse3D ?? true,
         }}
         waffoDefaultValues={{
           WaffoEnabled: settings.WaffoEnabled ?? false,

@@ -310,6 +310,13 @@ export type BillingSettings = {
   CreemWebhookSecret: string
   CreemTestMode: boolean
   CreemProducts: string
+  OenEnabled: boolean
+  OenApiToken: string
+  OenMerchantID: string
+  OenTestMode: boolean
+  OenUnitPriceTWD: number
+  OenMinTopUp: number
+  OenUse3D: boolean
   WaffoEnabled: boolean
   WaffoApiKey: string
   WaffoPrivateKey: string
