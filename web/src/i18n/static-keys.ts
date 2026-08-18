@@ -25,6 +25,7 @@ export const STATIC_I18N_KEYS = [
   'Model Square',
   'Rankings',
   'Docs',
+  'API Guide',
   'About',
 
   // Sidebar views (drill-in workspaces)
@@ -159,6 +160,23 @@ export const STATIC_I18N_KEYS = [
   'uptime',
   'active users',
   'Lightning Fast',
+
+  // Documentation page (constants-driven labels)
+  'API protocols',
+  'Core capabilities',
+  'Integration checklist',
+  'Streaming responses',
+  'Set stream to true to receive incremental output when the selected model and provider support streaming.',
+  'Tool calling',
+  'Send tool definitions with supported chat or response models, then execute returned tool calls in your application.',
+  'Multimodal input',
+  'Use supported text, image, and audio inputs with the request shape required by your chosen protocol.',
+  'Create a dedicated API key and keep it in a server-side secret store.',
+  'Choose a compatible model from the live model catalog.',
+  'Set the protocol-specific base URL and authentication headers.',
+  'Test streaming, tool calling, and multimodal inputs before enabling them in production.',
+  'Retry rate limits and temporary provider errors with exponential backoff.',
+  'Monitor usage, cost, and request logs after launch.',
   'Optimized network architecture ensures millisecond response times',
   'Secure & Reliable',
   'Enterprise-grade security with comprehensive permission management',
@@ -174,6 +192,20 @@ export const STATIC_I18N_KEYS = [
   'Multi-user management with flexible permission allocation',
   'Technical Support',
   'Professional team providing 24/7 technical support',
+
+  // Documentation (table content passed to t at runtime)
+  'List available models',
+  'Generate a chat completion',
+  'Use the Responses API',
+  'Create text embeddings',
+  'Generate an image',
+  'Create speech audio',
+  'Transcribe audio',
+  'The request is invalid or contains unsupported parameters.',
+  'The API key is missing or invalid.',
+  'The key cannot access the requested model or resource.',
+  'The request exceeded a rate or quota limit.',
+  'A temporary gateway or upstream provider error occurred.',
 
   // User management (interpolated keys)
   'Remaining Quota ({{currency}})',
