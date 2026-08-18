@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"math"
 	"strings"
 
 	"github.com/QuantumNous/new-api/setting"
@@ -44,6 +45,24 @@ func isCreemWebhookConfigured() bool {
 
 func isCreemWebhookEnabled() bool {
 	return isCreemTopUpEnabled() && isCreemWebhookConfigured()
+}
+
+func isOenTopUpEnabled() bool {
+	if !isPaymentComplianceConfirmed() || !setting.OenEnabled {
+		return false
+	}
+	return isOenWebhookConfigured() && setting.OenUnitPriceTWD > 0 &&
+		!math.IsNaN(setting.OenUnitPriceTWD) && !math.IsInf(setting.OenUnitPriceTWD, 0) &&
+		setting.OenMinTopUp > 0
+}
+
+func isOenWebhookConfigured() bool {
+	return strings.TrimSpace(setting.OenApiToken) != "" &&
+		strings.TrimSpace(setting.OenMerchantID) != ""
+}
+
+func isOenWebhookEnabled() bool {
+	return isOenWebhookConfigured()
 }
 
 func isWaffoTopUpEnabled() bool {
