@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  packages: read
   id-token: write
 
 concurrency:
@@ -54,34 +53,22 @@ jobs:
         if: steps.config.outputs.enabled == 'true'
         uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
 
-      - name: Log in to GitHub Container Registry
-        if: steps.config.outputs.enabled == 'true'
-        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Mirror release image to Artifact Registry
+      - name: Resolve production image
         if: steps.config.outputs.enabled == 'true'
         id: image
-        env:
-          SOURCE_IMAGE: ghcr.io/${{ github.repository }}:release
         run: |
           set -euo pipefail
           registry="${GCP_REGION}-docker.pkg.dev"
-          target_repository="${registry}/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REPOSITORY}/${GCP_CLOUD_RUN_SERVICE}"
-          target_image="${target_repository}:github-${GITHUB_RUN_ID}"
-
-          gcloud auth configure-docker "$registry" --quiet
-          docker pull --platform=linux/amd64 "$SOURCE_IMAGE"
-          docker tag "$SOURCE_IMAGE" "$target_image"
-          docker push "$target_image"
-
-          digest="$(gcloud artifacts docker images describe "$target_image" \
+          repository="${registry}/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REPOSITORY}/${GCP_CLOUD_RUN_SERVICE}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            tag="github-${{ github.event.workflow_run.id }}"
+          else
+            tag="release"
+          fi
+          digest="$(gcloud artifacts docker images describe "${repository}:${tag}" \
             --project="$GCP_PROJECT_ID" \
             --format='value(image_summary.digest)')"
-          echo "image=${target_repository}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "image=${repository}@${digest}" >> "$GITHUB_OUTPUT"
 
       - name: Deploy Cloud Run revision
         if: steps.config.outputs.enabled == 'true'
@@ -104,4 +91,3 @@ jobs:
           echo "- Service: \`$GCP_CLOUD_RUN_SERVICE\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Image: \`${{ steps.image.outputs.image }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- URL: $service_url" >> "$GITHUB_STEP_SUMMARY"
-
