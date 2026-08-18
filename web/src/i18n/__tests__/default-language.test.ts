@@ -61,6 +61,30 @@ describe('default interface language', () => {
     expect(i18n.resolvedLanguage).toBe('zhTW')
   })
 
+  it('keeps the persisted Traditional Chinese code after a reload', async () => {
+    window.localStorage.setItem('newApiInterfaceLanguage', 'zhTW')
+
+    const { default: i18n } = await import('../config')
+
+    expect(i18n.resolvedLanguage).toBe('zhTW')
+    expect(document.documentElement.lang).toBe('zh-TW')
+  })
+
+  it('resets a previously persisted Simplified Chinese default only once', async () => {
+    window.localStorage.setItem('newApiInterfaceLanguage', 'zhCN')
+
+    const { default: firstLoad } = await import('../config')
+
+    expect(firstLoad.resolvedLanguage).toBe('zhTW')
+
+    await firstLoad.changeLanguage('zhCN')
+    vi.resetModules()
+
+    const { default: secondLoad } = await import('../config')
+
+    expect(secondLoad.resolvedLanguage).toBe('zhCN')
+  })
+
   it('preserves an explicitly saved language preference', async () => {
     window.localStorage.setItem('newApiInterfaceLanguage', 'en')
 
