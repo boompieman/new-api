@@ -43,6 +43,26 @@ export const resources = {
   zhTW,
 } as const
 
+// Existing preview sessions may have persisted Simplified Chinese before
+// Traditional Chinese became the site default. Reset that value once, then
+// continue respecting every language choice the visitor makes afterward.
+if (typeof window !== 'undefined') {
+  try {
+    const migrationKey = 'interfaceLanguageDefaultZhTW2026V2'
+    if (window.localStorage.getItem(migrationKey) !== 'true') {
+      if (window.localStorage.getItem('newApiInterfaceLanguage') === 'zhCN') {
+        window.localStorage.setItem(
+          'newApiInterfaceLanguage',
+          DEFAULT_INTERFACE_LANGUAGE
+        )
+      }
+      window.localStorage.setItem(migrationKey, 'true')
+    }
+  } catch {
+    // Storage can be unavailable in privacy-restricted browser contexts.
+  }
+}
+
 i18n.on('languageChanged', (language) => {
   if (typeof document === 'undefined') return
   document.documentElement.lang = toIntlLocale(language) ?? 'zh-TW'
