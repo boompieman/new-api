@@ -52,8 +52,16 @@ describe('default interface language', () => {
     expect(i18n.resolvedLanguage).toBe('zhTW')
   })
 
+  it('ignores browser-detected language values cached by older releases', async () => {
+    window.localStorage.setItem('i18nextLng', 'zhCN')
+
+    const { default: i18n } = await import('../config')
+
+    expect(i18n.resolvedLanguage).toBe('zhTW')
+  })
+
   it('preserves an explicitly saved language preference', async () => {
-    window.localStorage.setItem('i18nextLng', 'en')
+    window.localStorage.setItem('newApiInterfaceLanguage', 'en')
 
     const { default: i18n } = await import('../config')
 
