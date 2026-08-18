@@ -22,12 +22,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Hero } from '../sections/hero'
 
-vi.mock('@lobehub/icons', () => ({
-  CherryStudio: {
-    Color: () => <span aria-hidden='true' />,
-  },
-}))
-
 vi.mock('@tanstack/react-router', () => ({
   Link: (
     props: AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -52,17 +46,13 @@ vi.mock('@/hooks/use-status', () => ({
   useStatus: () => ({ status: { docs_link: '/docs' } }),
 }))
 
-vi.mock('../hero-terminal-demo', () => ({
-  HeroTerminalDemo: () => <div data-testid='hero-terminal-demo' />,
-}))
-
 describe('homepage hero calls to action', () => {
   test('guides signed-out visitors to registration and model pricing', () => {
     render(<Hero isAuthenticated={false} />)
 
     expect(
       screen.getByRole('heading', {
-        name: /One API key,\s*Access multiple AI models/,
+        name: 'OmniAI, connect every AI model',
       })
     ).toBeInTheDocument()
     expect(
