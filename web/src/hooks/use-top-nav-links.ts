@@ -95,10 +95,6 @@ export function useTopNavLinks(): TopNavLink[] {
       href: docsHref,
       external: externalDocs,
     })
-
-    if (docsHref.replace(/\/+$/, '') !== '/docs') {
-      links.push({ title: t('API Guide'), href: '/docs' })
-    }
   }
 
   // About

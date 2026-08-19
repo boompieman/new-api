@@ -25,6 +25,7 @@ import { PaymentSettingsSection } from '../integrations/payment-settings-section
 import { RatioSettingsCard } from '../models/ratio-settings-card'
 import type { BillingSettings } from '../types'
 import { createSectionRegistry } from '../utils/section-registry'
+import { ManualBankTransferSettingsSection } from './manual-bank-transfer-settings-section'
 
 const getModelDefaults = (settings: BillingSettings) => ({
   ModelPrice: settings.ModelPrice,
@@ -192,6 +193,19 @@ const BILLING_SECTIONS = [
           confirmedAt: settings['payment_setting.compliance_confirmed_at'] ?? 0,
           confirmedBy: settings['payment_setting.compliance_confirmed_by'] ?? 0,
         }}
+      />
+    ),
+  },
+  {
+    id: 'manual-bank-transfer',
+    titleKey: 'Manual Bank Transfer',
+    build: (settings: BillingSettings) => (
+      <ManualBankTransferSettingsSection
+        defaultConfig={settings['manual_bank_transfer.config']}
+        complianceConfirmed={
+          (settings['payment_setting.compliance_confirmed'] ?? false) &&
+          settings['payment_setting.compliance_terms_version'] === 'v1'
+        }
       />
     ),
   },

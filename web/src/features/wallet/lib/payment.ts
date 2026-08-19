@@ -79,6 +79,10 @@ export function isOenPayment(paymentType: string): boolean {
   return paymentType === PAYMENT_TYPES.OEN
 }
 
+export function isManualBankTransferPayment(paymentType: string): boolean {
+  return paymentType === PAYMENT_TYPES.MANUAL_BANK_TRANSFER
+}
+
 /**
  * Check if payment method is Waffo
  */
@@ -101,6 +105,7 @@ export interface PaymentProcessors {
   regular: (topupAmount: number, paymentType: string) => Promise<boolean>
   waffo: (topupAmount: number, payMethodIndex: number) => Promise<boolean>
   waffoPancake: (topupAmount: number) => Promise<boolean>
+  manualBankTransfer: (topupAmount: number) => Promise<boolean>
 }
 
 export async function dispatchSelectedPayment(
@@ -118,6 +123,10 @@ export async function dispatchSelectedPayment(
 
   if (isWaffoPancakePayment(paymentMethod.type)) {
     return processors.waffoPancake(topupAmount)
+  }
+
+  if (isManualBankTransferPayment(paymentMethod.type)) {
+    return processors.manualBankTransfer(topupAmount)
   }
 
   return processors.regular(topupAmount, paymentMethod.type)
@@ -142,6 +151,10 @@ export function getDefaultPaymentType(topupInfo: TopupInfo | null): string {
 
   if (topupInfo.enable_oen_topup) {
     return PAYMENT_TYPES.OEN
+  }
+
+  if (topupInfo.enable_manual_bank_transfer_topup) {
+    return PAYMENT_TYPES.MANUAL_BANK_TRANSFER
   }
 
   if (topupInfo.enable_waffo_topup) {
@@ -173,6 +186,10 @@ export function getMinTopupAmount(topupInfo: TopupInfo | null): number {
 
   if (topupInfo.enable_oen_topup) {
     return topupInfo.oen_min_topup || DEFAULT_MIN_TOPUP
+  }
+
+  if (topupInfo.enable_manual_bank_transfer_topup) {
+    return topupInfo.min_topup || DEFAULT_MIN_TOPUP
   }
 
   if (topupInfo.enable_waffo_topup) {

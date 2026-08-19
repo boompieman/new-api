@@ -27,6 +27,7 @@ import { getSelf } from '@/lib/api'
 import { AffiliateRewardsCard } from './components/affiliate-rewards-card'
 import { BillingHistoryDialog } from './components/dialogs/billing-history-dialog'
 import { CreemConfirmDialog } from './components/dialogs/creem-confirm-dialog'
+import { ManualBankTransferDialog } from './components/dialogs/manual-bank-transfer-dialog'
 import { PaymentConfirmDialog } from './components/dialogs/payment-confirm-dialog'
 import { TransferDialog } from './components/dialogs/transfer-dialog'
 import { RechargeFormCard } from './components/recharge-form-card'
@@ -41,11 +42,13 @@ import {
   useCreemPayment,
   useWaffoPayment,
   useWaffoPancakePayment,
+  useManualBankTransfer,
 } from './hooks'
 import {
   getDefaultPaymentType,
   getMinTopupAmount,
   dispatchSelectedPayment,
+  isManualBankTransferPayment,
 } from './lib'
 import type {
   UserWalletData,
@@ -108,6 +111,12 @@ export function Wallet(props: WalletProps) {
   const { processing: waffoProcessing, processWaffoPayment } = useWaffoPayment()
   const { processing: pancakeProcessing, processWaffoPancakePayment } =
     useWaffoPancakePayment()
+  const {
+    processing: manualBankTransferProcessing,
+    details: manualBankTransferDetails,
+    processManualBankTransfer,
+    clearDetails: clearManualBankTransferDetails,
+  } = useManualBankTransfer()
 
   // Fetch and refresh user data
   const fetchUser = useCallback(async () => {
@@ -223,12 +232,15 @@ export function Wallet(props: WalletProps) {
         regular: processPayment,
         waffo: processWaffoPayment,
         waffoPancake: processWaffoPancakePayment,
+        manualBankTransfer: processManualBankTransfer,
       }
     )
 
     if (success) {
       setConfirmDialogOpen(false)
-      await fetchUser()
+      if (!isManualBankTransferPayment(selectedPaymentMethod.type)) {
+        await fetchUser()
+      }
     }
   }
 
@@ -386,9 +398,19 @@ export function Wallet(props: WalletProps) {
         paymentAmount={paymentAmount}
         paymentMethod={selectedPaymentMethod}
         calculating={calculating}
-        processing={processing || waffoProcessing || pancakeProcessing}
+        processing={
+          processing ||
+          waffoProcessing ||
+          pancakeProcessing ||
+          manualBankTransferProcessing
+        }
         discountRate={getDiscountRate()}
         usdExchangeRate={effectiveUsdExchangeRate}
+      />
+
+      <ManualBankTransferDialog
+        details={manualBankTransferDetails}
+        onClose={clearManualBankTransferDetails}
       />
 
       <TransferDialog
