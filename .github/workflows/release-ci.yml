@@ -18,9 +18,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect affected release components
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          backend=false
+          frontend=false
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ -z "$BASE_SHA" ] || [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            backend=true
+            frontend=true
+          else
+            if [ "$EVENT_NAME" = "pull_request" ]; then
+              diff_range="${BASE_SHA}...${HEAD_SHA}"
+            else
+              diff_range="${BASE_SHA}..${HEAD_SHA}"
+            fi
+
+            while IFS= read -r path; do
+              case "$path" in
+                web/*|VERSION|.github/workflows/cloudflare-pages.yml|.github/workflows/release-ci.yml)
+                  frontend=true
+                  ;;
+              esac
+
+              case "$path" in
+                web/*|.github/workflows/cloudflare-pages.yml|docs/*|*.md)
+                  ;;
+                *)
+                  backend=true
+                  ;;
+              esac
+            done < <(git diff --name-only "$diff_range")
+          fi
+
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+          echo "Backend checks: $backend" >> "$GITHUB_STEP_SUMMARY"
+          echo "Frontend checks: $frontend" >> "$GITHUB_STEP_SUMMARY"
+
   backend:
     name: Backend vet, build, and test
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
+    if: >-
+      needs.changes.outputs.backend == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -62,7 +121,10 @@ jobs:
 
   frontend:
     name: Frontend typecheck, test, and build
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
+    if: >-
+      needs.changes.outputs.frontend == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -87,7 +149,7 @@ jobs:
       - name: Test
         run: |
           if bun -e "const pkg = await Bun.file('package.json').json(); process.exit(pkg.scripts?.test ? 0 : 1)"; then
-            bun run test
+            node ./node_modules/vitest/vitest.mjs run
           else
             echo "No frontend test script is defined for this upstream snapshot; skipping."
           fi
@@ -101,8 +163,12 @@ jobs:
     name: Container build
     # Pull requests still validate the production container. After merge, the
     # publishing workflow reuses this cache while building the deployable image.
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    needs: [backend, frontend]
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.draft == false &&
+      needs.changes.outputs.backend == 'true' &&
+      needs.backend.result == 'success'
+    needs: [changes, backend]
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
