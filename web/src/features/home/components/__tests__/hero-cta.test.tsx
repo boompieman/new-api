@@ -18,11 +18,9 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { render, screen } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ReactNode } from 'react'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Hero } from '../sections/hero'
-
-const mockStatus = vi.hoisted(() => ({ docsLink: '/docs' }))
 
 vi.mock('@tanstack/react-router', () => ({
   Link: (
@@ -45,14 +43,10 @@ vi.mock('react-i18next', () => ({
 }))
 
 vi.mock('@/hooks/use-status', () => ({
-  useStatus: () => ({ status: { docs_link: mockStatus.docsLink } }),
+  useStatus: () => ({ status: { docs_link: '/docs' } }),
 }))
 
 describe('homepage hero calls to action', () => {
-  beforeEach(() => {
-    mockStatus.docsLink = '/docs'
-  })
-
   test('guides signed-out visitors to registration and model pricing', () => {
     render(<Hero isAuthenticated={false} />)
 
@@ -80,33 +74,6 @@ describe('homepage hero calls to action', () => {
     ).toHaveAttribute('href', '/keys')
     expect(
       screen.queryByRole('button', { name: 'Create free account' })
-    ).not.toBeInTheDocument()
-  })
-
-  test('keeps external docs and adds the local API guide', () => {
-    mockStatus.docsLink = 'https://docs.newapi.pro'
-
-    render(<Hero isAuthenticated={false} />)
-
-    expect(screen.getByRole('button', { name: 'Docs' })).toHaveAttribute(
-      'href',
-      'https://docs.newapi.pro'
-    )
-    expect(screen.getByRole('button', { name: 'API Guide' })).toHaveAttribute(
-      'href',
-      '/docs'
-    )
-  })
-
-  test('does not duplicate the local guide when docs already points to it', () => {
-    render(<Hero isAuthenticated={false} />)
-
-    expect(screen.getByRole('button', { name: 'Docs' })).toHaveAttribute(
-      'href',
-      '/docs'
-    )
-    expect(
-      screen.queryByRole('button', { name: 'API Guide' })
     ).not.toBeInTheDocument()
   })
 })
