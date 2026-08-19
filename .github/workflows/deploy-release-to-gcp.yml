@@ -14,7 +14,8 @@ permissions:
 
 concurrency:
   group: deploy-release-production
-  cancel-in-progress: true
+  # Serialize deployments so the newest queued release is always applied last.
+  cancel-in-progress: false
 
 jobs:
   changes:
@@ -47,7 +48,7 @@ jobs:
           else
             while IFS= read -r path; do
               case "$path" in
-                web/*|.github/workflows/cloudflare-pages.yml|docs/*|*.md)
+                web/*|.github/workflows/*.yml|.github/workflows/*.yaml|docs/*|*.md)
                   ;;
                 *)
                   backend=true

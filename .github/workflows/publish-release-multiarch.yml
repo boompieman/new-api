@@ -20,7 +20,8 @@ permissions:
 
 concurrency:
   group: publish-release-multiarch
-  cancel-in-progress: true
+  # A later frontend-only release must not cancel an in-flight backend image.
+  cancel-in-progress: false
 
 jobs:
   changes:
@@ -53,7 +54,7 @@ jobs:
           else
             while IFS= read -r path; do
               case "$path" in
-                web/*|.github/workflows/cloudflare-pages.yml|docs/*|*.md)
+                web/*|.github/workflows/*.yml|.github/workflows/*.yaml|docs/*|*.md)
                   ;;
                 *)
                   backend=true
