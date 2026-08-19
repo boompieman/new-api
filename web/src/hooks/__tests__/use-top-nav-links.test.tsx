@@ -49,7 +49,7 @@ describe('top navigation documentation links', () => {
     mockStatus.docsLink = '/docs'
   })
 
-  test('adds a local API guide beside configured external docs', () => {
+  test('marks configured external documentation as external', () => {
     mockStatus.docsLink = 'https://docs.newapi.pro'
 
     const { result } = renderHook(() => useTopNavLinks())
@@ -60,11 +60,10 @@ describe('top navigation documentation links', () => {
         href: 'https://docs.newapi.pro',
         external: true,
       },
-      { title: 'API Guide', href: '/docs' },
     ])
   })
 
-  test('does not add a duplicate guide when docs already uses the local route', () => {
+  test('keeps a relative documentation route internal', () => {
     const { result } = renderHook(() => useTopNavLinks())
 
     expect(result.current).toEqual([

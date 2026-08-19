@@ -43,6 +43,19 @@ export type OenPaymentResponse = ApiResponse<{
   pay_link: string
   order_id?: string
 }>
+export interface ManualBankTransferDetails {
+  order_id: string
+  payment_amount: number
+  bank_name: string
+  bank_code?: string
+  branch_name?: string
+  account_name: string
+  account_number: string
+  instructions?: string
+  status: 'pending'
+}
+export type ManualBankTransferPaymentResponse =
+  ApiResponse<ManualBankTransferDetails>
 export type AffiliateCodeResponse = ApiResponse<string>
 export type AffiliateTransferResponse = ApiResponse
 export type CreemPaymentResponse = ApiResponse<{ checkout_url: string }>
@@ -130,6 +143,8 @@ export interface TopupInfo {
   enable_stripe_topup: boolean
   /** Whether OEN Payment topup is enabled */
   enable_oen_topup?: boolean
+  /** Whether manual bank transfer topup is enabled */
+  enable_manual_bank_transfer_topup?: boolean
   /** Available payment methods */
   pay_methods: PaymentMethod[]
   /** Minimum topup amount for online topup */
