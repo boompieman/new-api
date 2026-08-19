@@ -14,12 +14,54 @@ permissions:
 
 concurrency:
   group: deploy-release-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect backend deployment
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - name: Check out release source
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event != 'workflow_dispatch'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SOURCE_EVENT_NAME: ${{ github.event.workflow_run.event }}
+        run: |
+          set -euo pipefail
+          backend=false
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$SOURCE_EVENT_NAME" = "workflow_dispatch" ]; then
+            backend=true
+          elif ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            backend=true
+          else
+            while IFS= read -r path; do
+              case "$path" in
+                web/*|.github/workflows/cloudflare-pages.yml|docs/*|*.md)
+                  ;;
+                *)
+                  backend=true
+                  ;;
+              esac
+            done < <(git diff --name-only HEAD^ HEAD)
+          fi
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "Cloud Run deployment required: $backend" >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
     name: Deploy production
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
