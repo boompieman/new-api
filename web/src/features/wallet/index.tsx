@@ -147,6 +147,23 @@ export function Wallet(props: WalletProps) {
       // Calculate initial payment amount with default payment type
       const defaultPaymentType = getDefaultPaymentType(topupInfo)
       calculatePaymentAmount(minTopup, defaultPaymentType)
+
+      const defaultPaymentMethod = topupInfo.pay_methods?.find(
+        (method) => method.type === defaultPaymentType
+      )
+      if (defaultPaymentMethod) {
+        setSelectedPaymentMethod(defaultPaymentMethod)
+      } else if (
+        defaultPaymentType === PAYMENT_TYPES.WAFFO &&
+        topupInfo.waffo_pay_methods?.[0]
+      ) {
+        setSelectedPaymentMethod({
+          name: topupInfo.waffo_pay_methods[0].name,
+          type: PAYMENT_TYPES.WAFFO,
+          icon: topupInfo.waffo_pay_methods[0].icon,
+        })
+        setSelectedWaffoMethodIndex(0)
+      }
     }
   }, [topupInfo, calculatePaymentAmount])
 
@@ -169,7 +186,7 @@ export function Wallet(props: WalletProps) {
     calculatePaymentAmount(amount, getCurrentPaymentType())
   }
 
-  // Handle payment method selection
+  // Select a payment method and refresh the amount summary.
   const handlePaymentMethodSelect = async (method: PaymentMethod) => {
     setSelectedPaymentMethod(method)
     setSelectedWaffoMethodIndex(null)
@@ -182,12 +199,16 @@ export function Wallet(props: WalletProps) {
         return
       }
 
-      // Calculate payment amount and show confirmation dialog
+      // Calculate payment amount without leaving the checkout form.
       await calculatePaymentAmount(topupAmount, method.type)
-      setConfirmDialogOpen(true)
     } finally {
       setPaymentLoading(null)
     }
+  }
+
+  const handleSubmitPayment = () => {
+    if (!selectedPaymentMethod) return
+    setConfirmDialogOpen(true)
   }
 
   // Handle payment confirmation
@@ -264,7 +285,6 @@ export function Wallet(props: WalletProps) {
 
     try {
       await calculatePaymentAmount(topupAmount, PAYMENT_TYPES.WAFFO)
-      setConfirmDialogOpen(true)
     } finally {
       setPaymentLoading(null)
     }
@@ -288,7 +308,11 @@ export function Wallet(props: WalletProps) {
         <SectionPageLayout.Title>{t('Wallet')}</SectionPageLayout.Title>
         <SectionPageLayout.Content>
           <div className='mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-5'>
-            <WalletStatsCard user={user} loading={userLoading} />
+            <WalletStatsCard
+              user={user}
+              loading={userLoading}
+              onOpenBilling={() => setBillingDialogOpen(true)}
+            />
 
             <div
               className={
@@ -307,7 +331,10 @@ export function Wallet(props: WalletProps) {
                   onTopupAmountChange={handleTopupAmountChange}
                   paymentAmount={paymentAmount}
                   calculating={calculating}
+                  selectedPaymentMethod={selectedPaymentMethod}
+                  selectedWaffoMethodIndex={selectedWaffoMethodIndex}
                   onPaymentMethodSelect={handlePaymentMethodSelect}
+                  onSubmitPayment={handleSubmitPayment}
                   paymentLoading={paymentLoading}
                   redemptionCode={redemptionCode}
                   onRedemptionCodeChange={setRedemptionCode}
@@ -317,7 +344,6 @@ export function Wallet(props: WalletProps) {
                   loading={topupLoading}
                   priceRatio={(status?.price as number) || 1}
                   usdExchangeRate={effectiveUsdExchangeRate}
-                  onOpenBilling={() => setBillingDialogOpen(true)}
                   creemProducts={topupInfo?.creem_products}
                   enableCreemTopup={topupInfo?.enable_creem_topup}
                   onCreemProductSelect={handleCreemProductSelect}
