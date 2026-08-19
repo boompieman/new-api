@@ -20,16 +20,55 @@ permissions:
 
 concurrency:
   group: publish-release-image
+  # A later frontend-only release must not cancel an in-flight backend image.
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publish production image
+  changes:
+    name: Detect backend changes
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'release')
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - name: Check out release source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref }}
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          backend=false
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            backend=true
+          else
+            while IFS= read -r path; do
+              case "$path" in
+                web/*|.github/workflows/*.yml|.github/workflows/*.yaml|docs/*|*.md)
+                  ;;
+                *)
+                  backend=true
+                  ;;
+              esac
+            done < <(git diff --name-only HEAD^ HEAD)
+          fi
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "Backend image required: $backend" >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish production image
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production
