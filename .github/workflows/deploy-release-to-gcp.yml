@@ -48,7 +48,7 @@ jobs:
           else
             while IFS= read -r path; do
               case "$path" in
-                web/*|.github/workflows/cloudflare-pages.yml|docs/*|*.md)
+                web/*|.github/workflows/*.yml|.github/workflows/*.yaml|docs/*|*.md)
                   ;;
                 *)
                   backend=true
