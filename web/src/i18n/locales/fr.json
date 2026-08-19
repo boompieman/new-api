@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "Afficher le virement bancaire après l’enregistrement des coordonnées requises.",
     "Shown only to signed-in users who create a transfer order.": "Visible uniquement par les utilisateurs connectés créant un ordre de virement.",
     "Transfer instructions": "Instructions de virement",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Virez le montant exact ci-dessous. Le solde sera crédité après confirmation par l’administrateur."
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Virez le montant exact ci-dessous. Le solde sera crédité après confirmation par l’administrateur.",
+    "Bank details and your order number will appear after you confirm payment.": "Les coordonnées bancaires et votre numéro de commande s’afficheront après confirmation du paiement."
   }
 }

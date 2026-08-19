@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "必須の銀行情報を保存すると、ウォレットに銀行振込が表示されます。",
     "Shown only to signed-in users who create a transfer order.": "振込注文を作成したログイン済みユーザーにのみ表示されます。",
     "Transfer instructions": "振込案内",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "以下の正確な金額を振り込んでください。管理者が入金を確認した後、残高に反映されます。"
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "以下の正確な金額を振り込んでください。管理者が入金を確認した後、残高に反映されます。",
+    "Bank details and your order number will appear after you confirm payment.": "支払いを確定すると、振込先情報と注文番号が表示されます。"
   }
 }

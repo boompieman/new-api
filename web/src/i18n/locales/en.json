@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "Show bank transfer as a payment method after all required bank details are saved.",
     "Shown only to signed-in users who create a transfer order.": "Shown only to signed-in users who create a transfer order.",
     "Transfer instructions": "Transfer instructions",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment."
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.",
+    "Bank details and your order number will appear after you confirm payment.": "Bank details and your order number will appear after you confirm payment."
   }
 }

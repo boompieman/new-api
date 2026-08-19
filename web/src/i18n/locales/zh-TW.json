@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "儲存所有必填銀行資料後，在錢包中顯示手動匯款。",
     "Shown only to signed-in users who create a transfer order.": "僅向已登入且建立匯款訂單的使用者顯示。",
     "Transfer instructions": "匯款說明",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "請匯入下方的正確金額。管理員確認入帳後才會增加額度。"
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "請匯入下方的正確金額。管理員確認入帳後才會增加額度。",
+    "Bank details and your order number will appear after you confirm payment.": "確認付款後將顯示銀行帳戶資訊與訂單編號。"
   }
 }

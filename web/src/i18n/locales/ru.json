@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "Показывать банковский перевод после сохранения обязательных реквизитов.",
     "Shown only to signed-in users who create a transfer order.": "Показывается только вошедшим пользователям, создавшим заказ на перевод.",
     "Transfer instructions": "Инструкции по переводу",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Переведите точную сумму ниже. Баланс будет пополнен после подтверждения администратором."
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Переведите точную сумму ниже. Баланс будет пополнен после подтверждения администратором.",
+    "Bank details and your order number will appear after you confirm payment.": "После подтверждения платежа появятся банковские реквизиты и номер заказа."
   }
 }

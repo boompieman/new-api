@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "保存所有必填银行资料后，在钱包中显示手动汇款。",
     "Shown only to signed-in users who create a transfer order.": "仅向已登录且创建汇款订单的用户显示。",
     "Transfer instructions": "汇款说明",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "请汇入下方的准确金额。管理员确认入账后才会增加余额。"
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "请汇入下方的准确金额。管理员确认入账后才会增加余额。",
+    "Bank details and your order number will appear after you confirm payment.": "确认付款后将显示银行账户信息和订单号。"
   }
 }

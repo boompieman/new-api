@@ -6857,6 +6857,7 @@
     "Show bank transfer as a payment method after all required bank details are saved.": "Hiển thị chuyển khoản ngân hàng sau khi lưu đủ thông tin bắt buộc.",
     "Shown only to signed-in users who create a transfer order.": "Chỉ hiển thị cho người dùng đã đăng nhập và tạo đơn chuyển khoản.",
     "Transfer instructions": "Hướng dẫn chuyển khoản",
-    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Chuyển đúng số tiền bên dưới. Số dư sẽ được cộng sau khi quản trị viên xác nhận."
+    "Transfer the exact amount below. Your balance will be added after the administrator confirms the payment.": "Chuyển đúng số tiền bên dưới. Số dư sẽ được cộng sau khi quản trị viên xác nhận.",
+    "Bank details and your order number will appear after you confirm payment.": "Thông tin ngân hàng và mã đơn hàng sẽ hiển thị sau khi bạn xác nhận thanh toán."
   }
 }
