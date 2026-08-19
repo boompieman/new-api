@@ -600,6 +600,7 @@
     "Balance updated: {{balance}}": "Số dư đã cập nhật: {{balance}}",
     "Bank": "Ngân hàng",
     "Bank code": "Mã ngân hàng",
+    "Bank details and your order number will appear after you confirm payment.": "Thông tin ngân hàng và mã đơn hàng sẽ hiển thị sau khi bạn xác nhận thanh toán.",
     "Bank name": "Tên ngân hàng",
     "Bank transfer details": "Thông tin chuyển khoản ngân hàng",
     "Bank transfer order created": "Đã tạo đơn chuyển khoản ngân hàng",
