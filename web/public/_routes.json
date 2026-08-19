@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/static/*",
+    "/favicon.ico",
+    "/logo.png",
+    "/pay-apple.png",
+    "/pay-card.png",
+    "/pay-google.png",
+    "/waffo-logo-dark.svg",
+    "/waffo-logo-light.svg"
+  ]
+}
