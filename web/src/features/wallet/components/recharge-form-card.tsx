@@ -143,11 +143,14 @@ export function RechargeFormCard({
     }
   }
 
+  const hasManualBankTransfer = topupInfo?.pay_methods?.some(
+    (method) => method.type === PAYMENT_TYPES.MANUAL_BANK_TRANSFER
+  )
   const hasConfigurableTopup =
     topupInfo?.enable_online_topup ||
     topupInfo?.enable_stripe_topup ||
     topupInfo?.enable_oen_topup ||
-    topupInfo?.enable_manual_bank_transfer_topup ||
+    hasManualBankTransfer ||
     enableWaffoTopup ||
     enableWaffoPancakeTopup
   const hasAnyTopup = hasConfigurableTopup || enableCreemTopup
