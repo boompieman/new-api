@@ -143,8 +143,6 @@ export interface TopupInfo {
   enable_stripe_topup: boolean
   /** Whether OEN Payment topup is enabled */
   enable_oen_topup?: boolean
-  /** Whether manual bank transfer topup is enabled */
-  enable_manual_bank_transfer_topup?: boolean
   /** Available payment methods */
   pay_methods: PaymentMethod[]
   /** Minimum topup amount for online topup */

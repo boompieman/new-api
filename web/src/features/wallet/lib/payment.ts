@@ -153,10 +153,6 @@ export function getDefaultPaymentType(topupInfo: TopupInfo | null): string {
     return PAYMENT_TYPES.OEN
   }
 
-  if (topupInfo.enable_manual_bank_transfer_topup) {
-    return PAYMENT_TYPES.MANUAL_BANK_TRANSFER
-  }
-
   if (topupInfo.enable_waffo_topup) {
     return PAYMENT_TYPES.WAFFO
   }
@@ -186,10 +182,6 @@ export function getMinTopupAmount(topupInfo: TopupInfo | null): number {
 
   if (topupInfo.enable_oen_topup) {
     return topupInfo.oen_min_topup || DEFAULT_MIN_TOPUP
-  }
-
-  if (topupInfo.enable_manual_bank_transfer_topup) {
-    return topupInfo.min_topup || DEFAULT_MIN_TOPUP
   }
 
   if (topupInfo.enable_waffo_topup) {
