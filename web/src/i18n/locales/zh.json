@@ -622,6 +622,7 @@
     "Balance updated: {{balance}}": "余额已更新：{{balance}}",
     "Bank": "银行",
     "Bank code": "银行代码",
+    "Bank details and your order number will appear after you confirm payment.": "确认付款后将显示银行账户信息和订单号。",
     "Bank name": "银行名称",
     "Bank transfer details": "银行汇款信息",
     "Bank transfer order created": "手动汇款订单已创建",
