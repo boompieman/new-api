@@ -30,6 +30,7 @@ import type {
   PaymentResponse,
   StripePaymentResponse,
   OenPaymentResponse,
+  ManualBankTransferPaymentResponse,
   AffiliateCodeResponse,
   AffiliateTransferResponse,
   BillingHistoryResponse,
@@ -147,6 +148,15 @@ export async function requestOenPayment(
   request: PaymentRequest
 ): Promise<OenPaymentResponse> {
   const res = await api.post('/api/user/oen/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
+export async function requestManualBankTransferPayment(
+  request: AmountRequest
+): Promise<ManualBankTransferPaymentResponse> {
+  const res = await api.post('/api/user/manual-bank-transfer/pay', request, {
     skipBusinessError: true,
   } as Record<string, unknown>)
   return res.data

@@ -73,6 +73,8 @@ const defaultBillingSettings: BillingSettings = {
   'payment_setting.compliance_confirmed_at': 0,
   'payment_setting.compliance_confirmed_by': 0,
   'payment_setting.compliance_confirmed_ip': '',
+  'manual_bank_transfer.config':
+    '{"enabled":false,"bank_name":"","bank_code":"","branch_name":"","account_name":"","account_number":"","instructions":""}',
   StripeApiSecret: '',
   StripeWebhookSecret: '',
   StripePriceId: '',

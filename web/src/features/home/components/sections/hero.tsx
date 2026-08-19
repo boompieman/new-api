@@ -102,16 +102,6 @@ export function Hero(props: HeroProps) {
             <HugeiconsIcon icon={BookOpen01Icon} size={16} strokeWidth={2} />
             {t('Docs')}
           </Button>
-          {isExternalDocs && (
-            <Button
-              variant='ghost'
-              className='text-muted-foreground h-10 rounded-lg px-4'
-              render={<Link to='/docs' />}
-            >
-              <HugeiconsIcon icon={BookOpen01Icon} size={16} strokeWidth={2} />
-              {t('API Guide')}
-            </Button>
-          )}
         </div>
 
         <div className='text-muted-foreground mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs sm:text-sm'>
