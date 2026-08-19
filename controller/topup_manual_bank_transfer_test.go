@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestRequestManualBankTransferPayWaitsForAdminCompletionBeforeCreditingQuota(t *testing.T) {
+func TestCreateManualBankTransferTopUpWaitsForAdminCompletionBeforeCreditingQuota(t *testing.T) {
 	oldDB := model.DB
 	oldLogDB := model.LOG_DB
 	oldMainDatabaseType := common.MainDatabaseType()
@@ -88,12 +88,12 @@ func TestRequestManualBankTransferPayWaitsForAdminCompletionBeforeCreditingQuota
 	ctx.Set("id", user.Id)
 	ctx.Request = httptest.NewRequest(
 		http.MethodPost,
-		"/api/user/manual-bank-transfer/pay",
+		"/api/user/topup/manual-bank-transfer",
 		strings.NewReader(`{"amount":10}`),
 	)
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	RequestManualBankTransferPay(ctx)
+	CreateManualBankTransferTopUp(ctx)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
 	var response struct {
@@ -119,7 +119,7 @@ func TestRequestManualBankTransferPayWaitsForAdminCompletionBeforeCreditingQuota
 	assert.Equal(t, user.Id, topUp.UserId)
 	assert.Equal(t, int64(10), topUp.Amount)
 	assert.Equal(t, float64(350), topUp.Money)
-	assert.Equal(t, model.PaymentProviderManualBankTransfer, topUp.PaymentProvider)
+	assert.Equal(t, manualBankTransferPaymentType, topUp.PaymentProvider)
 	assert.Equal(t, common.TopUpStatusPending, topUp.Status)
 
 	var reloaded model.User
