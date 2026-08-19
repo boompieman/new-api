@@ -20,7 +20,8 @@ permissions:
 
 concurrency:
   group: publish-release-image
-  cancel-in-progress: true
+  # A later frontend-only release must not cancel an in-flight backend image.
+  cancel-in-progress: false
 
 jobs:
   changes:
