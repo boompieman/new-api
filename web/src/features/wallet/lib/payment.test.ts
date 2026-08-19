@@ -22,6 +22,7 @@ import { PAYMENT_TYPES } from '../constants'
 import {
   dispatchSelectedPayment,
   isOenPayment,
+  isManualBankTransferPayment,
   isStripePayment,
   isWaffoPayment,
   isWaffoPancakePayment,
@@ -36,6 +37,9 @@ describe('payment type classification', () => {
     expect(isStripePayment(PAYMENT_TYPES.STRIPE)).toBe(true)
     expect(isOenPayment(PAYMENT_TYPES.OEN)).toBe(true)
     expect(isOenPayment(PAYMENT_TYPES.STRIPE)).toBe(false)
+    expect(
+      isManualBankTransferPayment(PAYMENT_TYPES.MANUAL_BANK_TRANSFER)
+    ).toBe(true)
   })
 })
 
@@ -59,6 +63,7 @@ describe('payment dispatch', () => {
           calls.push('pancake')
           return false
         },
+        manualBankTransfer: async () => false,
       }
     )
 
@@ -79,10 +84,38 @@ describe('payment dispatch', () => {
           return true
         },
         waffoPancake: async () => false,
+        manualBankTransfer: async () => false,
       }
     )
 
     expect(success).toBe(false)
     expect(called).toBe(false)
+  })
+
+  test('routes manual bank transfer to its pending-order flow', async () => {
+    const calls: string[] = []
+    const success = await dispatchSelectedPayment(
+      {
+        name: 'Manual Bank Transfer',
+        type: PAYMENT_TYPES.MANUAL_BANK_TRANSFER,
+      },
+      50,
+      null,
+      {
+        regular: async () => {
+          calls.push('regular')
+          return false
+        },
+        waffo: async () => false,
+        waffoPancake: async () => false,
+        manualBankTransfer: async (amount) => {
+          calls.push(`manual:${amount}`)
+          return true
+        },
+      }
+    )
+
+    expect(success).toBe(true)
+    expect(calls).toEqual(['manual:50'])
   })
 })
