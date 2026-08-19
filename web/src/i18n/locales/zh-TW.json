@@ -622,6 +622,7 @@
     "Balance updated: {{balance}}": "餘額已更新：{{balance}}",
     "Bank": "銀行",
     "Bank code": "銀行代碼",
+    "Bank details and your order number will appear after you confirm payment.": "確認付款後將顯示銀行帳戶資訊與訂單編號。",
     "Bank name": "銀行名稱",
     "Bank transfer details": "銀行匯款資訊",
     "Bank transfer order created": "手動匯款訂單已建立",

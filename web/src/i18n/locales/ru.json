@@ -622,6 +622,7 @@
     "Balance updated: {{balance}}": "Баланс обновлён: {{balance}}",
     "Bank": "Банк",
     "Bank code": "Код банка",
+    "Bank details and your order number will appear after you confirm payment.": "После подтверждения платежа появятся банковские реквизиты и номер заказа.",
     "Bank name": "Название банка",
     "Bank transfer details": "Реквизиты банковского перевода",
     "Bank transfer order created": "Заказ на банковский перевод создан",

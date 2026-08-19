@@ -622,6 +622,7 @@
     "Balance updated: {{balance}}": "残高更新：{{balance}}",
     "Bank": "銀行",
     "Bank code": "銀行コード",
+    "Bank details and your order number will appear after you confirm payment.": "支払いを確定すると、振込先情報と注文番号が表示されます。",
     "Bank name": "銀行名",
     "Bank transfer details": "銀行振込情報",
     "Bank transfer order created": "銀行振込注文を作成しました",
