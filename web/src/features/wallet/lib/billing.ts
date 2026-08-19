@@ -71,9 +71,10 @@ export const PAYMENT_METHOD_NAMES: Record<string, string> = {
  */
 export function getPaymentMethodName(
   method: string,
-  t?: (key: string) => string
+  t?: (key: string) => string,
+  fallbackName?: string
 ): string {
-  const name = PAYMENT_METHOD_NAMES[method] || method
+  const name = PAYMENT_METHOD_NAMES[method] || fallbackName || method
   return t ? t(name) : name
 }
 
