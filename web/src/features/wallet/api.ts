@@ -156,7 +156,7 @@ export async function requestOenPayment(
 export async function requestManualBankTransferPayment(
   request: AmountRequest
 ): Promise<ManualBankTransferPaymentResponse> {
-  const res = await api.post('/api/user/manual-bank-transfer/pay', request, {
+  const res = await api.post('/api/user/topup/manual-bank-transfer', request, {
     skipBusinessError: true,
   } as Record<string, unknown>)
   return res.data

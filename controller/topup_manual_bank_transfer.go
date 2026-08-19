@@ -17,9 +17,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type ManualBankTransferPayRequest struct {
-	Amount int64 `json:"amount"`
-}
+const manualBankTransferPaymentType = "manual_bank_transfer"
 
 func isManualBankTransferTopUpEnabled() bool {
 	config := operation_setting.GetManualBankTransferConfig()
@@ -35,20 +33,22 @@ func appendManualBankTransferPayMethod(payMethods []map[string]string) []map[str
 		return payMethods
 	}
 	for _, method := range payMethods {
-		if method["type"] == model.PaymentMethodManualBankTransfer {
+		if method["type"] == manualBankTransferPaymentType {
 			return payMethods
 		}
 	}
 	return append(payMethods, map[string]string{
 		"name":      "Manual Bank Transfer",
-		"type":      model.PaymentMethodManualBankTransfer,
+		"type":      manualBankTransferPaymentType,
 		"icon":      "LuLandmark",
 		"color":     "#0F766E",
 		"min_topup": strconv.FormatInt(getMinTopup(), 10),
 	})
 }
 
-func RequestManualBankTransferPay(c *gin.Context) {
+// CreateManualBankTransferTopUp adapts manual transfers to the existing TopUp
+// lifecycle. AdminCompleteTopUp remains the only path that credits the order.
+func CreateManualBankTransferTopUp(c *gin.Context) {
 	if !requirePaymentCompliance(c) {
 		return
 	}
@@ -57,7 +57,7 @@ func RequestManualBankTransferPay(c *gin.Context) {
 		return
 	}
 
-	var request ManualBankTransferPayRequest
+	var request AmountRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		common.ApiErrorMsg(c, "参数错误")
 		return
@@ -99,8 +99,8 @@ func RequestManualBankTransferPay(c *gin.Context) {
 		Amount:          normalizedAmount,
 		Money:           payMoney,
 		TradeNo:         tradeNo,
-		PaymentMethod:   model.PaymentMethodManualBankTransfer,
-		PaymentProvider: model.PaymentProviderManualBankTransfer,
+		PaymentMethod:   manualBankTransferPaymentType,
+		PaymentProvider: manualBankTransferPaymentType,
 		CreateTime:      time.Now().Unix(),
 		Status:          common.TopUpStatusPending,
 	}
