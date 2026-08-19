@@ -600,6 +600,7 @@
     "Balance updated: {{balance}}": "Solde mis à jour : {{balance}}",
     "Bank": "Banque",
     "Bank code": "Code bancaire",
+    "Bank details and your order number will appear after you confirm payment.": "Les coordonnées bancaires et votre numéro de commande s’afficheront après confirmation du paiement.",
     "Bank name": "Nom de la banque",
     "Bank transfer details": "Coordonnées du virement bancaire",
     "Bank transfer order created": "Ordre de virement bancaire créé",
