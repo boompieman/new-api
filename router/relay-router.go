@@ -6,6 +6,7 @@ import (
 	"github.com/QuantumNous/new-api/middleware"
 	"github.com/QuantumNous/new-api/relay"
 	"github.com/QuantumNous/new-api/relaykit/types"
+	"github.com/QuantumNous/new-api/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -71,6 +72,37 @@ func SetRelayRouter(router *gin.Engine) {
 	relayV1Router.Use(middleware.SystemPerformanceCheck())
 	relayV1Router.Use(middleware.TokenAuth())
 	relayV1Router.Use(middleware.ModelRequestRateLimit())
+	pinnacleRouter := router.Group("/v1/tools/pinnacle")
+	pinnacleRouter.Use(middleware.RouteTag("relay"))
+	pinnacleRouter.Use(middleware.SystemPerformanceCheck())
+	pinnacleRouter.Use(middleware.TokenAuth())
+	pinnacleRouter.Use(middleware.ModelRequestRateLimit())
+	{
+		pinnacleRouter.GET("/timezones", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointTimezones)
+		})
+		pinnacleRouter.GET("/sport/list", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointSportList)
+		})
+		pinnacleRouter.GET("/sport/leagues", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointSportLeagues)
+		})
+		pinnacleRouter.GET("/sport/matches", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointSportMatches)
+		})
+		pinnacleRouter.GET("/sport/matches/live", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointLiveMatches)
+		})
+		pinnacleRouter.GET("/league/matches", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointLeagueMatches)
+		})
+		pinnacleRouter.GET("/match/details", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointMatchDetails)
+		})
+		pinnacleRouter.GET("/match/odds", func(c *gin.Context) {
+			controller.RelayPinnacleTool(c, service.PinnacleEndpointMatchOdds)
+		})
+	}
 	{
 		// WebSocket 路由（统一到 Relay）
 		wsRouter := relayV1Router.Group("")
