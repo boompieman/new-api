@@ -206,6 +206,9 @@ func SetApiRouter(router *gin.Engine) {
 			optionRoute.POST("/waffo-pancake/save", controller.SaveWaffoPancake)
 			optionRoute.POST("/waffo-pancake/subscription-product", controller.CreateWaffoPancakeSubscriptionProduct)
 			optionRoute.GET("/waffo-pancake/subscription-product-options", controller.ListWaffoPancakeSubscriptionProductOptions)
+			optionRoute.GET("/pinnacle-tool", controller.GetPinnacleToolConfig)
+			optionRoute.PUT("/pinnacle-tool", controller.UpdatePinnacleToolConfig)
+			optionRoute.POST("/pinnacle-tool/test", controller.TestPinnacleToolConnection)
 		}
 
 		// Custom OAuth provider management (root only)

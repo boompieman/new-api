@@ -34,6 +34,15 @@ func isPaymentComplianceOptionKey(key string) bool {
 	return strings.HasPrefix(key, "payment_setting.compliance_")
 }
 
+func isSensitiveOptionKey(key string) bool {
+	return strings.HasSuffix(key, "Token") ||
+		strings.HasSuffix(key, "Secret") ||
+		strings.HasSuffix(key, "Key") ||
+		strings.HasSuffix(key, "secret") ||
+		strings.HasSuffix(key, "api_key") ||
+		strings.HasSuffix(key, "api_token")
+}
+
 func isPositiveOptionValue(value string) bool {
 	intValue, err := strconv.Atoi(strings.TrimSpace(value))
 	if err == nil {
@@ -85,12 +94,7 @@ func GetOptions(c *gin.Context) {
 			continue
 		}
 		value := common.Interface2String(v)
-		isSensitiveKey := strings.HasSuffix(k, "Token") ||
-			strings.HasSuffix(k, "Secret") ||
-			strings.HasSuffix(k, "Key") ||
-			strings.HasSuffix(k, "secret") ||
-			strings.HasSuffix(k, "api_key")
-		if isSensitiveKey {
+		if isSensitiveOptionKey(k) {
 			continue
 		}
 		options = append(options, &model.Option{

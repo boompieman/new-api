@@ -36,6 +36,7 @@ import { useSystemConfig } from '@/hooks/use-system-config'
 import { ApiReferenceSection } from './components/api-reference-section'
 import { CodeExample } from './components/code-example'
 import { DocsNavigation, DocsTopicBar } from './components/docs-navigation'
+import { PinnacleApiToolSection } from './components/pinnacle-api-tool-section'
 import { QuickStartSection } from './components/quick-start-section'
 
 function getApiOrigin(serverAddress: unknown): string {
@@ -157,6 +158,7 @@ export function Docs() {
 
             <QuickStartSection apiOrigin={apiOrigin} />
             <ApiReferenceSection apiOrigin={apiOrigin} />
+            <PinnacleApiToolSection apiOrigin={apiOrigin} />
           </article>
 
           <aside className='sticky top-28 hidden h-fit py-14 xl:block'>
@@ -176,6 +178,9 @@ export function Docs() {
               </a>
               <a href='#endpoints' className='hover:text-foreground'>
                 {t('API endpoints')}
+              </a>
+              <a href='#api-tools' className='hover:text-foreground'>
+                {t('API Tools')}
               </a>
               <a href='#errors' className='hover:text-foreground'>
                 {t('Error handling')}
