@@ -96,6 +96,9 @@ describe('documentation page structure', () => {
     expect(
       screen.getAllByRole('link', { name: 'Core capabilities' })[0]
     ).toHaveAttribute('href', '#capabilities')
+    expect(
+      screen.getAllByRole('link', { name: 'API Tools' })[0]
+    ).toHaveAttribute('href', '#api-tools')
     expect(screen.getByText('https://api.omni.example/v1')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Create API key' })
@@ -117,6 +120,15 @@ describe('documentation page structure', () => {
     expect(
       screen.getByRole('heading', { name: 'Integration checklist' })
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Pinnacle sports data' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('$5 USD / 1,000', { exact: false })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/\/v1\/tools\/pinnacle\/sport\/leagues\?sport_id=1/)
+    ).toBeInTheDocument()
   })
 
   test('offers Python, TypeScript, and curl integration examples', async () => {
@@ -133,10 +145,10 @@ describe('documentation page structure', () => {
 
     await user.click(screen.getByRole('tab', { name: 'cURL' }))
     expect(
-      screen.getByText(
+      screen.getAllByText(
         (content, element) =>
           element?.tagName === 'CODE' && content.startsWith('curl "')
-      )
+      )[0]
     ).toBeVisible()
   })
 
