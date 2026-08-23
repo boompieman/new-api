@@ -24,6 +24,7 @@ import {
   Key01Icon,
   Rocket01Icon,
   SparklesIcon,
+  ToolsIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
@@ -35,6 +36,7 @@ const navigationItems = [
   { id: 'protocols', icon: ConnectIcon, label: 'API protocols' },
   { id: 'capabilities', icon: SparklesIcon, label: 'Core capabilities' },
   { id: 'endpoints', icon: CodeIcon, label: 'API endpoints' },
+  { id: 'api-tools', icon: ToolsIcon, label: 'API Tools' },
   { id: 'errors', icon: CodeIcon, label: 'Error handling' },
   { id: 'checklist', icon: CheckListIcon, label: 'Integration checklist' },
 ] as const
