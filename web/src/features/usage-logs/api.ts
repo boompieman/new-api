@@ -86,6 +86,22 @@ export const getUserLogStats = (
   params: Omit<GetLogStatsParams, 'username' | 'channel'> = {}
 ) => fetchLogStats('/api/log', params, false)
 
+export async function exportUsageLogs(
+  params: GetLogsParams,
+  isAdmin: boolean
+): Promise<Blob> {
+  const queryParams = buildQueryParams(
+    params as unknown as Record<string, unknown>
+  )
+  const path = `${buildApiPath('/api/log', isAdmin)}/export`
+  const response = await api.get(`${path}?${queryParams}`, {
+    responseType: 'blob',
+    skipBusinessError: true,
+    skipErrorHandler: true,
+  })
+  return response.data
+}
+
 export async function getUserInfo(
   userId: number
 ): Promise<{ success: boolean; message?: string; data?: UserInfo }> {
