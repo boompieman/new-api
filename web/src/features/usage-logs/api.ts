@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { api } from '@/lib/api'
 
-import { buildQueryParams } from './lib/utils'
 import type {
   GetLogsParams,
   GetLogsResponse,
@@ -35,6 +34,16 @@ import type {
 
 function buildApiPath(endpoint: string, isAdmin: boolean): string {
   return isAdmin ? endpoint : `${endpoint}/self`
+}
+
+function buildQueryParams(params: Record<string, unknown>): URLSearchParams {
+  const queryParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      queryParams.append(key, String(value))
+    }
+  }
+  return queryParams
 }
 
 async function fetchLogs<T>(
@@ -83,6 +92,22 @@ export const getLogStats = (params: GetLogStatsParams = {}) =>
 export const getUserLogStats = (
   params: Omit<GetLogStatsParams, 'username' | 'channel'> = {}
 ) => fetchLogStats('/api/log', params, false)
+
+export async function exportUsageLogs(
+  params: GetLogsParams,
+  isAdmin: boolean
+): Promise<Blob> {
+  const queryParams = buildQueryParams(
+    params as unknown as Record<string, unknown>
+  )
+  const path = `${buildApiPath('/api/log', isAdmin)}/export`
+  const response = await api.get(`${path}?${queryParams}`, {
+    responseType: 'blob',
+    skipBusinessError: true,
+    skipErrorHandler: true,
+  })
+  return response.data
+}
 
 export async function getUserInfo(
   userId: number
