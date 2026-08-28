@@ -42,17 +42,21 @@ const calendarLocales = {
 } as const
 
 interface DateTimePickerProps {
+  id?: string
   value?: Date
   onChange?: (date: Date | undefined) => void
   placeholder?: string
   className?: string
+  ariaInvalid?: boolean
 }
 
 export function DateTimePicker({
+  id,
   value,
   onChange,
   placeholder,
   className,
+  ariaInvalid,
 }: DateTimePickerProps) {
   const { t, i18n } = useTranslation()
   const placeholderText = placeholder ?? t('Select date')
@@ -116,7 +120,9 @@ export function DateTimePicker({
         <PopoverTrigger
           render={
             <Button
+              id={id}
               variant='outline'
+              aria-invalid={ariaInvalid}
               className={cn(
                 'flex-1 justify-between font-normal',
                 !date && 'text-muted-foreground'
@@ -142,7 +148,9 @@ export function DateTimePicker({
         </PopoverContent>
       </Popover>
       <Input
+        id={id ? `${id}-time` : undefined}
         type='time'
+        aria-invalid={ariaInvalid}
         value={time}
         onChange={handleTimeChange}
         className='w-32 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
@@ -155,7 +163,7 @@ export function DateTimePicker({
           size='icon'
           onClick={handleClear}
           className='shrink-0'
-          aria-label='Clear'
+          aria-label={t('Clear')}
         >
           <span aria-hidden='true'>✕</span>
         </Button>
