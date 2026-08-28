@@ -6887,6 +6887,18 @@
     "League matches": "联赛比赛",
     "Match details": "比赛详情",
     "Match odds": "比赛赔率",
-    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "必需查询参数：体育路由使用 sport_id；联赛比赛使用 league_id 和 sport_id；比赛详情和赔率使用 match_id。可选参数包括 league_id、date（YYYY-MM-DD）和 timezone。"
+    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "必需查询参数：体育路由使用 sport_id；联赛比赛使用 league_id 和 sport_id；比赛详情和赔率使用 match_id。可选参数包括 league_id、date（YYYY-MM-DD）和 timezone。",
+    "Choose a preset or custom date range. Current log filters are also applied.": "选择预设或自定义日期范围。当前日志筛选条件也会一并应用。",
+    "Export CSV": "导出 CSV",
+    "Export usage logs": "导出使用日志",
+    "Exported {{count}} logs.": "已导出 {{count}} 条日志。",
+    "Exporting {{completed}} of {{total}} logs...": "正在导出日志：{{completed}} / {{total}}...",
+    "Exporting...": "正在导出...",
+    "Failed to export logs.": "导出日志失败。",
+    "No logs found for the selected range.": "所选范围内没有日志。",
+    "Preparing export...": "正在准备导出...",
+    "Select both start and end times.": "请选择开始时间和结束时间。",
+    "Start time must be before end time.": "开始时间必须早于结束时间。",
+    "The CSV may contain sensitive log data. Store it securely.": "CSV 可能包含敏感日志数据，请妥善保管。"
   }
 }

@@ -50,6 +50,7 @@ import { getDefaultTimeRange } from '../lib/utils'
 import type { CommonLogFilters } from '../types'
 import { CommonLogsStats } from './common-logs-stats'
 import { CompactDateTimeRangePicker } from './compact-date-time-range-picker'
+import { ExportLogsDialog } from './dialogs/export-logs-dialog'
 import {
   LogsFilterField,
   LogsFilterInput,
@@ -295,27 +296,29 @@ export function CommonLogsFilterBar<TData>(
   const deprecatedTypeDescription = t(
     'Only used to find historical logs. New records are available in Audit Logs.'
   )
-
   const statsBar = <CommonLogsStats />
-  const sensitiveToggle = (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={() => setSensitiveVisible(!sensitiveVisible)}
-            aria-label={sensitiveVisible ? t('Hide') : t('Show')}
-            className='text-muted-foreground hover:text-foreground size-7 max-sm:size-11'
-          />
-        }
-      >
-        {sensitiveVisible ? <Eye /> : <EyeOff />}
-      </TooltipTrigger>
-      <TooltipContent>
-        {sensitiveVisible ? t('Hide') : t('Show')}
-      </TooltipContent>
-    </Tooltip>
+  const actionStart = (
+    <div className='flex items-center gap-1'>
+      <ExportLogsDialog isAdmin={isAdmin} searchParams={searchParams} />
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => setSensitiveVisible(!sensitiveVisible)}
+              aria-label={sensitiveVisible ? t('Hide') : t('Show')}
+              className='text-muted-foreground hover:text-foreground size-7 max-sm:size-11'
+            />
+          }
+        >
+          {sensitiveVisible ? <Eye /> : <EyeOff />}
+        </TooltipTrigger>
+        <TooltipContent>
+          {sensitiveVisible ? t('Hide') : t('Show')}
+        </TooltipContent>
+      </Tooltip>
+    </div>
   )
 
   const dateRangeFilter = (
@@ -487,7 +490,7 @@ export function CommonLogsFilterBar<TData>(
       table={props.table}
       compactMobile
       stats={statsBar}
-      actionStart={sensitiveToggle}
+      actionStart={actionStart}
       primaryFilters={
         <>
           {dateRangeFilter}

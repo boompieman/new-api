@@ -6887,6 +6887,18 @@
     "League matches": "League matches",
     "Match details": "Match details",
     "Match odds": "Match odds",
-    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone."
+    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.",
+    "Choose a preset or custom date range. Current log filters are also applied.": "Choose a preset or custom date range. Current log filters are also applied.",
+    "Export CSV": "Export CSV",
+    "Export usage logs": "Export usage logs",
+    "Exported {{count}} logs.": "Exported {{count}} logs.",
+    "Exporting {{completed}} of {{total}} logs...": "Exporting {{completed}} of {{total}} logs...",
+    "Exporting...": "Exporting...",
+    "Failed to export logs.": "Failed to export logs.",
+    "No logs found for the selected range.": "No logs found for the selected range.",
+    "Preparing export...": "Preparing export...",
+    "Select both start and end times.": "Select both start and end times.",
+    "Start time must be before end time.": "Start time must be before end time.",
+    "The CSV may contain sensitive log data. Store it securely.": "The CSV may contain sensitive log data. Store it securely."
   }
 }

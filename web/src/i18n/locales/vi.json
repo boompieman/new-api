@@ -6887,6 +6887,18 @@
     "League matches": "Trận thuộc giải",
     "Match details": "Chi tiết trận đấu",
     "Match odds": "Tỷ lệ cược trận đấu",
-    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "Tham số bắt buộc: sport_id cho tuyến thể thao; league_id và sport_id cho trận thuộc giải; match_id cho chi tiết và tỷ lệ cược. Tham số tùy chọn gồm league_id, date (YYYY-MM-DD) và timezone."
+    "Required query parameters: sport_id for sport routes; league_id and sport_id for league matches; match_id for match details and odds. Optional parameters include league_id, date (YYYY-MM-DD), and timezone.": "Tham số bắt buộc: sport_id cho tuyến thể thao; league_id và sport_id cho trận thuộc giải; match_id cho chi tiết và tỷ lệ cược. Tham số tùy chọn gồm league_id, date (YYYY-MM-DD) và timezone.",
+    "Choose a preset or custom date range. Current log filters are also applied.": "Chọn khoảng ngày đặt sẵn hoặc tùy chỉnh. Các bộ lọc nhật ký hiện tại cũng sẽ được áp dụng.",
+    "Export CSV": "Xuất CSV",
+    "Export usage logs": "Xuất nhật ký sử dụng",
+    "Exported {{count}} logs.": "Đã xuất {{count}} mục nhật ký.",
+    "Exporting {{completed}} of {{total}} logs...": "Đang xuất {{completed}}/{{total}} mục nhật ký...",
+    "Exporting...": "Đang xuất...",
+    "Failed to export logs.": "Xuất nhật ký không thành công.",
+    "No logs found for the selected range.": "Không tìm thấy nhật ký trong khoảng đã chọn.",
+    "Preparing export...": "Đang chuẩn bị xuất...",
+    "Select both start and end times.": "Hãy chọn cả thời gian bắt đầu và kết thúc.",
+    "Start time must be before end time.": "Thời gian bắt đầu phải trước thời gian kết thúc.",
+    "The CSV may contain sensitive log data. Store it securely.": "Tệp CSV có thể chứa dữ liệu nhật ký nhạy cảm. Hãy lưu trữ tệp an toàn."
   }
 }
