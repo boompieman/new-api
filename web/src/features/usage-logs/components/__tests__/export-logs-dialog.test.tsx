@@ -21,13 +21,11 @@ import userEvent from '@testing-library/user-event'
 import i18next from 'i18next'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { getAllLogs } from '../../api'
-import type { GetLogsResponse } from '../../types'
+import { exportUsageLogs } from '../../api'
 import { ExportLogsDialog } from '../dialogs/export-logs-dialog'
 
 vi.mock('../../api', () => ({
-  getAllLogs: vi.fn(),
-  getUserLogs: vi.fn(),
+  exportUsageLogs: vi.fn(),
 }))
 
 vi.mock('sonner', () => ({
@@ -45,18 +43,27 @@ describe('usage log export dialog', () => {
       'Preparing export...': 'Preparing export...',
       'Select both start and end times.': 'Select both start and end times.',
     })
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn(() => 'blob:usage-log-export'),
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    })
   })
 
   beforeEach(() => {
-    vi.mocked(getAllLogs).mockReset()
+    vi.mocked(exportUsageLogs).mockReset()
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
   })
 
-  test('keeps export disabled while the first page is loading', async () => {
-    let resolveRequest: ((value: GetLogsResponse) => void) | undefined
-    vi.mocked(getAllLogs).mockReturnValue(
+  test('uses one download request and keeps export disabled while it is loading', async () => {
+    let resolveRequest: ((value: Blob) => void) | undefined
+    vi.mocked(exportUsageLogs).mockReturnValue(
       new Promise((resolve) => {
         resolveRequest = resolve
-      }) as ReturnType<typeof getAllLogs>
+      })
     )
     const user = userEvent.setup()
 
@@ -79,12 +86,17 @@ describe('usage log export dialog', () => {
 
     expect(exportButton).toBeDisabled()
     expect(within(dialog).getByText('Preparing export...')).toBeVisible()
+    expect(exportUsageLogs).toHaveBeenCalledTimes(1)
+    expect(exportUsageLogs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        start_timestamp: new Date('2026-08-27T00:00:00Z').getTime() / 1000,
+        end_timestamp: new Date('2026-08-28T00:00:00Z').getTime() / 1000,
+      }),
+      true
+    )
 
-    resolveRequest?.({
-      success: true,
-      data: { items: [], total: 0, page: 1, page_size: 100 },
-    })
-    await waitFor(() => expect(exportButton).toBeEnabled())
+    resolveRequest?.(new Blob(['csv']))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
   test('shows a validation error without requesting data when a date is missing', async () => {
@@ -101,6 +113,6 @@ describe('usage log export dialog', () => {
     expect(
       within(dialog).getByText('Select both start and end times.')
     ).toBeVisible()
-    expect(getAllLogs).not.toHaveBeenCalled()
+    expect(exportUsageLogs).not.toHaveBeenCalled()
   })
 })
