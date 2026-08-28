@@ -33,30 +33,17 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
-import {
-  Progress,
-  ProgressLabel,
-  ProgressValue,
-} from '@/components/ui/progress'
 import { Spinner } from '@/components/ui/spinner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import dayjs from '@/lib/dayjs'
 
-import { getAllLogs, getUserLogs } from '../../api'
+import { exportUsageLogs } from '../../api'
 import {
-  buildUsageLogsCsv,
-  fetchAllUsageLogPages,
   getExportPresetRange,
   validateExportRange,
-  type CommonLogPageFetcher,
-  type ExportProgress,
   type ExportRangePreset,
 } from '../../lib/export'
-import {
-  buildApiParams,
-  getDefaultTimeRange,
-  getLogTypeConfig,
-} from '../../lib/utils'
+import { buildApiParams, getDefaultTimeRange } from '../../lib/utils'
 
 interface ExportLogsDialogProps {
   isAdmin: boolean
@@ -87,10 +74,6 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
   const [endTime, setEndTime] = useState<Date | undefined>(initialRange.end)
   const [rangeError, setRangeError] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
-  const [progress, setProgress] = useState<ExportProgress>({
-    completed: 0,
-    total: 0,
-  })
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (exporting && !nextOpen) return
@@ -108,7 +91,6 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
       )
       setPreset('custom')
       setRangeError(null)
-      setProgress({ completed: 0, total: 0 })
     }
     setOpen(nextOpen)
   }
@@ -146,7 +128,6 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
 
     setRangeError(null)
     setExporting(true)
-    setProgress({ completed: 0, total: 0 })
 
     try {
       const exportSearchParams = {
@@ -160,24 +141,7 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
         searchParams: exportSearchParams,
         isAdmin: props.isAdmin,
       })
-      const fetchPage: CommonLogPageFetcher = props.isAdmin
-        ? (pageParams) => getAllLogs(pageParams)
-        : (pageParams) => getUserLogs(pageParams)
-      const logs = await fetchAllUsageLogPages({
-        params,
-        fetchPage,
-        onProgress: setProgress,
-      })
-
-      if (logs.length === 0) {
-        toast.error(t('No logs found for the selected range.'))
-        return
-      }
-
-      const csv = buildUsageLogsCsv(logs, (type) =>
-        t(getLogTypeConfig(type).label)
-      )
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+      const blob = await exportUsageLogs(params, props.isAdmin)
       const url = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = url
@@ -187,7 +151,7 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
       anchor.remove()
       URL.revokeObjectURL(url)
 
-      toast.success(t('Exported {{count}} logs.', { count: logs.length }))
+      toast.success(t('Usage logs exported.'))
       setOpen(false)
     } catch (error) {
       toast.error(
@@ -199,11 +163,6 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
       setExporting(false)
     }
   }
-
-  const progressPercent =
-    progress.total > 0
-      ? Math.round((progress.completed / progress.total) * 100)
-      : 0
 
   return (
     <Dialog
@@ -312,17 +271,13 @@ export function ExportLogsDialog(props: ExportLogsDialogProps) {
         </Alert>
 
         {exporting && (
-          <Progress value={progressPercent}>
-            <ProgressLabel>
-              {progress.total > 0
-                ? t('Exporting {{completed}} of {{total}} logs...', {
-                    completed: progress.completed,
-                    total: progress.total,
-                  })
-                : t('Preparing export...')}
-            </ProgressLabel>
-            <ProgressValue>{() => `${progressPercent}%`}</ProgressValue>
-          </Progress>
+          <div
+            role='status'
+            className='text-muted-foreground flex items-center gap-2 text-sm'
+          >
+            <Spinner />
+            {t('Preparing export...')}
+          </div>
         )}
       </FieldGroup>
     </Dialog>
