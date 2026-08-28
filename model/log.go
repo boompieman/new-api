@@ -2,8 +2,10 @@ package model
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -113,24 +115,156 @@ func assignDisplayLogIds(logs []*Log, startIdx int) {
 	}
 }
 
+func formatUserLog(log *Log, displayId int) {
+	log.ChannelName = ""
+	otherMap, _ := common.StrToMap(log.Other)
+	if otherMap != nil {
+		// Remove admin-only debug fields.
+		delete(otherMap, "admin_info")
+		// Remove diagnostics reserved for root.
+		delete(otherMap, "root_info")
+		// Remove operation-audit details (operator/route info), admin-only.
+		delete(otherMap, "audit_info")
+		// delete(otherMap, "reject_reason")
+		// delete(otherMap, "stream_status")
+	}
+	log.Other = common.MapToJsonStr(otherMap)
+	log.Id = displayId
+}
+
 func formatUserLogs(logs []*Log, startIdx int) {
 	for i := range logs {
-		logs[i].ChannelName = ""
-		var otherMap map[string]interface{}
-		otherMap, _ = common.StrToMap(logs[i].Other)
-		if otherMap != nil {
-			// Remove admin-only debug fields.
-			delete(otherMap, "admin_info")
-			// Remove diagnostics reserved for root.
-			delete(otherMap, "root_info")
-			// Remove operation-audit details (operator/route info), admin-only.
-			delete(otherMap, "audit_info")
-			// delete(otherMap, "reject_reason")
-			// delete(otherMap, "stream_status")
-		}
-		logs[i].Other = common.MapToJsonStr(otherMap)
+		formatUserLog(logs[i], startIdx+i+1)
 	}
-	assignDisplayLogIds(logs, startIdx)
+}
+
+// LogExportQuery contains the filters shared by the admin and self-service
+// usage-log CSV exports. UserId is nil for an administrator export.
+type LogExportQuery struct {
+	LogType           int
+	StartTimestamp    int64
+	EndTimestamp      int64
+	ModelName         string
+	Username          string
+	TokenName         string
+	Channel           int
+	Group             string
+	RequestId         string
+	UpstreamRequestId string
+	UserId            *int
+}
+
+// LogExportIterator streams matching logs from the database without loading
+// the complete export into memory. Callers must close it.
+type LogExportIterator struct {
+	rows                *sql.Rows
+	channelNames        map[int]string
+	userView            bool
+	assignDisplayLogIds bool
+	rowIndex            int
+}
+
+func OpenLogExportIterator(ctx context.Context, query LogExportQuery) (*LogExportIterator, error) {
+	tx := LOG_DB.WithContext(ctx).Model(&Log{})
+	if query.UserId != nil {
+		tx = tx.Where("logs.user_id = ?", *query.UserId)
+	}
+	if query.LogType != LogTypeUnknown {
+		tx = tx.Where("logs.type = ?", query.LogType)
+	}
+
+	var err error
+	if tx, err = applyExplicitLogTextFilter(tx, "logs.model_name", query.ModelName); err != nil {
+		return nil, err
+	}
+	if query.UserId == nil {
+		if tx, err = applyExplicitLogTextFilter(tx, "logs.username", query.Username); err != nil {
+			return nil, err
+		}
+		if query.Channel != 0 {
+			tx = tx.Where("logs.channel_id = ?", query.Channel)
+		}
+	}
+	if query.TokenName != "" {
+		tx = tx.Where("logs.token_name = ?", query.TokenName)
+	}
+	if query.RequestId != "" {
+		tx = tx.Where("logs.request_id = ?", query.RequestId)
+	}
+	if query.UpstreamRequestId != "" {
+		tx = tx.Where("logs.upstream_request_id = ?", query.UpstreamRequestId)
+	}
+	if query.StartTimestamp != 0 {
+		tx = tx.Where("logs.created_at >= ?", query.StartTimestamp)
+	}
+	if query.EndTimestamp != 0 {
+		tx = tx.Where("logs.created_at <= ?", query.EndTimestamp)
+	}
+	if query.Group != "" {
+		tx = tx.Where("logs."+logGroupCol+" = ?", query.Group)
+	}
+
+	channelNames := map[int]string{}
+	if query.UserId == nil {
+		var channels []struct {
+			Id   int    `gorm:"column:id"`
+			Name string `gorm:"column:name"`
+		}
+		if err = DB.WithContext(ctx).Table("channels").Select("id, name").Find(&channels).Error; err != nil {
+			return nil, err
+		}
+		for _, channel := range channels {
+			channelNames[channel.Id] = channel.Name
+		}
+	}
+
+	order := "logs.created_at desc, logs.id desc"
+	if query.UserId != nil {
+		order = "logs.id desc"
+	}
+	usingClickHouse := common.UsingLogDatabase(common.DatabaseTypeClickHouse)
+	if usingClickHouse {
+		order = clickHouseLogOrder("logs.")
+	}
+	rows, err := tx.Order(order).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	return &LogExportIterator{
+		rows:                rows,
+		channelNames:        channelNames,
+		userView:            query.UserId != nil,
+		assignDisplayLogIds: query.UserId != nil || usingClickHouse,
+	}, nil
+}
+
+func (iterator *LogExportIterator) Next() (*Log, error) {
+	if !iterator.rows.Next() {
+		if err := iterator.rows.Err(); err != nil {
+			return nil, err
+		}
+		return nil, io.EOF
+	}
+
+	log := &Log{}
+	if err := LOG_DB.ScanRows(iterator.rows, log); err != nil {
+		return nil, err
+	}
+	iterator.rowIndex++
+	if iterator.userView {
+		formatUserLog(log, iterator.rowIndex)
+	} else {
+		log.ChannelName = iterator.channelNames[log.ChannelId]
+		if iterator.assignDisplayLogIds {
+			log.Id = iterator.rowIndex
+		}
+	}
+	return log, nil
+}
+
+func (iterator *LogExportIterator) Close() error {
+	return iterator.rows.Close()
 }
 
 // FormatAdminLogs removes root-only diagnostics while retaining operational
