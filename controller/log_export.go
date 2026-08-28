@@ -35,6 +35,8 @@ var usageLogCSVHeaders = []string{
 	"completion_tokens",
 	"total_tokens",
 	"quota",
+	"fee_quota",
+	"cost_usd",
 	"use_time",
 	"is_stream",
 	"ip",
@@ -188,6 +190,21 @@ func exportLogsCSV(c *gin.Context, userId *int) {
 }
 
 func usageLogCSVRecord(log *model.Log) []string {
+	feeQuota := log.Quota
+	if log.Other != "" {
+		other := struct {
+			FeeQuota *int `json:"fee_quota"`
+		}{}
+		if err := common.Unmarshal([]byte(log.Other), &other); err == nil && other.FeeQuota != nil {
+			feeQuota = *other.FeeQuota
+		}
+	}
+
+	costUSD := ""
+	if common.QuotaPerUnit > 0 {
+		costUSD = strconv.FormatFloat(float64(feeQuota)/common.QuotaPerUnit, 'f', 6, 64)
+	}
+
 	return []string{
 		strconv.Itoa(log.Id),
 		strconv.FormatInt(log.CreatedAt, 10),
@@ -206,6 +223,8 @@ func usageLogCSVRecord(log *model.Log) []string {
 		strconv.Itoa(log.CompletionTokens),
 		strconv.Itoa(log.PromptTokens + log.CompletionTokens),
 		strconv.Itoa(log.Quota),
+		strconv.Itoa(feeQuota),
+		costUSD,
 		strconv.Itoa(log.UseTime),
 		strconv.FormatBool(log.IsStream),
 		spreadsheetSafeCSVText(log.Ip),
