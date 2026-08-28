@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -47,7 +48,22 @@ func readLogExportCSV(t *testing.T, recorder *httptest.ResponseRecorder) [][]str
 	return records
 }
 
+func logExportCSVColumnIndex(t *testing.T, headers []string, name string) int {
+	t.Helper()
+	for index, header := range headers {
+		if header == name {
+			return index
+		}
+	}
+	require.FailNow(t, "CSV column not found", name)
+	return -1
+}
+
 func TestExportAllLogsStreamsEveryMatchingRow(t *testing.T) {
+	previousQuotaPerUnit := common.QuotaPerUnit
+	common.QuotaPerUnit = 500_000
+	t.Cleanup(func() { common.QuotaPerUnit = previousQuotaPerUnit })
+
 	db := setupLogExportControllerTestDB(t)
 	channel := model.Channel{Name: "primary", Key: "test-key", Group: "default"}
 	require.NoError(t, db.Create(&channel).Error)
@@ -70,6 +86,7 @@ func TestExportAllLogsStreamsEveryMatchingRow(t *testing.T) {
 		}
 	}
 	logs[len(logs)-1].Content = "=SUM(A1:A2)"
+	logs[len(logs)-1].Quota = 57_117
 	require.NoError(t, db.Create(&logs).Error)
 
 	recorder := requestLogExport(
@@ -86,7 +103,23 @@ func TestExportAllLogsStreamsEveryMatchingRow(t *testing.T) {
 	assert.Equal(t, usageLogCSVHeaders, records[0])
 	assert.Equal(t, "205", records[1][0])
 	assert.Equal(t, "primary", records[1][6])
-	assert.Equal(t, "'=SUM(A1:A2)", records[1][22])
+	assert.Equal(t, "57117", records[1][logExportCSVColumnIndex(t, records[0], "fee_quota")])
+	assert.Equal(t, "0.114234", records[1][logExportCSVColumnIndex(t, records[0], "cost_usd")])
+	assert.Equal(t, "'=SUM(A1:A2)", records[1][logExportCSVColumnIndex(t, records[0], "content")])
+}
+
+func TestUsageLogCSVRecordUsesFeeQuotaOverrideForCost(t *testing.T) {
+	previousQuotaPerUnit := common.QuotaPerUnit
+	common.QuotaPerUnit = 500_000
+	t.Cleanup(func() { common.QuotaPerUnit = previousQuotaPerUnit })
+
+	record := usageLogCSVRecord(&model.Log{
+		Quota: 99_999,
+		Other: `{"fee_quota":57117}`,
+	})
+
+	assert.Equal(t, "57117", record[logExportCSVColumnIndex(t, usageLogCSVHeaders, "fee_quota")])
+	assert.Equal(t, "0.114234", record[logExportCSVColumnIndex(t, usageLogCSVHeaders, "cost_usd")])
 }
 
 func TestExportUserLogsKeepsOnlyOwnedNonAdminData(t *testing.T) {
@@ -131,10 +164,12 @@ func TestExportUserLogsKeepsOnlyOwnedNonAdminData(t *testing.T) {
 	assert.Equal(t, "1", records[1][0])
 	assert.Empty(t, records[1][6])
 	assert.Equal(t, "alice", records[1][8])
-	assert.Equal(t, "owned", records[1][22])
-	assert.NotContains(t, records[1][23], "admin_info")
-	assert.NotContains(t, records[1][23], "audit_info")
-	assert.Contains(t, records[1][23], "visible")
+	contentIndex := logExportCSVColumnIndex(t, records[0], "content")
+	otherIndex := logExportCSVColumnIndex(t, records[0], "other")
+	assert.Equal(t, "owned", records[1][contentIndex])
+	assert.NotContains(t, records[1][otherIndex], "admin_info")
+	assert.NotContains(t, records[1][otherIndex], "audit_info")
+	assert.Contains(t, records[1][otherIndex], "visible")
 }
 
 func TestExportLogsRejectsInvalidTimeRangeBeforeStreaming(t *testing.T) {
