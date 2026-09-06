@@ -136,7 +136,7 @@ func TestExportUserLogsKeepsOnlyOwnedNonAdminData(t *testing.T) {
 			Group:     "default",
 			ModelName: "gpt-test",
 			Content:   "owned",
-			Other:     `{"admin_info":{"secret":"hidden"},"audit_info":{"path":"/admin"},"visible":"yes"}`,
+			Other:     `{"admin_info":{"secret":"hidden"},"root_info":{"secret":"root"},"audit_info":{"path":"/admin"},"channel_name":"legacy-secret","reject_reason":"private","visible":"yes","exact":9007199254740993}`,
 		},
 		{
 			UserId:    8,
@@ -169,6 +169,10 @@ func TestExportUserLogsKeepsOnlyOwnedNonAdminData(t *testing.T) {
 	assert.Equal(t, "owned", records[1][contentIndex])
 	assert.NotContains(t, records[1][otherIndex], "admin_info")
 	assert.NotContains(t, records[1][otherIndex], "audit_info")
+	assert.NotContains(t, records[1][otherIndex], "root_info")
+	assert.NotContains(t, records[1][otherIndex], "channel_name")
+	assert.NotContains(t, records[1][otherIndex], "reject_reason")
+	assert.Contains(t, records[1][otherIndex], "9007199254740993")
 	assert.Contains(t, records[1][otherIndex], "visible")
 }
 
