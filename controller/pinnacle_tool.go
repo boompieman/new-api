@@ -158,6 +158,11 @@ func RelayPinnacleTool(c *gin.Context, endpoint service.PinnacleEndpoint) {
 
 	useTime := int(time.Since(relayInfo.StartTime).Seconds())
 	model.UpdateUserUsedQuotaAndRequestCount(relayInfo.UserId, quota)
+	other := model.NewLogOther()
+	other.SetPublic("api_tool", "pinnacle")
+	other.SetPublic("operation", string(endpoint))
+	other.SetPublic("price_per_thousand_requests", operation_setting.PinnacleToolPricePerThousandUSD)
+	other.SetPublic("request_path", c.Request.URL.Path)
 	model.RecordConsumeLog(c, relayInfo.UserId, model.RecordConsumeLogParams{
 		ModelName:      operation_setting.PinnacleToolModelName,
 		TokenName:      c.GetString("token_name"),
@@ -166,12 +171,7 @@ func RelayPinnacleTool(c *gin.Context, endpoint service.PinnacleEndpoint) {
 		TokenId:        relayInfo.TokenId,
 		UseTimeSeconds: useTime,
 		Group:          relayInfo.UsingGroup,
-		Other: map[string]interface{}{
-			"api_tool":                    "pinnacle",
-			"operation":                   string(endpoint),
-			"price_per_thousand_requests": operation_setting.PinnacleToolPricePerThousandUSD,
-			"request_path":                c.Request.URL.Path,
-		},
+		Other:          other,
 	})
 
 	contentType := response.ContentType
