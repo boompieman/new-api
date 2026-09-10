@@ -172,6 +172,10 @@ func TestRequestContentParsing(t *testing.T) {
 			assert.Equal(t, tc.text, messages[0].Text)
 		})
 	}
+	messagesWithEmptyFinal, done := responseContent([]byte("data: {\"type\":\"response.output_text.delta\",\"delta\":\"answer\"}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"output\":[]}}\n"), true)
+	require.True(t, done)
+	require.Equal(t, []capturedMessage{{Role: "assistant", Text: "answer"}}, messagesWithEmptyFinal)
+
 	encoded, clipped := boundedContent([]capturedMessage{{"user", strings.Repeat("世\x00", 20000)}})
 	assert.True(t, clipped)
 	assert.Less(t, len(encoded), 65535)
