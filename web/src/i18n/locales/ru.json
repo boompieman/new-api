@@ -6900,6 +6900,20 @@
     "Preparing export...": "Подготовка экспорта...",
     "Select both start and end times.": "Выберите время начала и окончания.",
     "Start time must be before end time.": "Время начала должно предшествовать времени окончания.",
-    "The CSV may contain sensitive log data. Store it securely.": "CSV-файл может содержать конфиденциальные данные журнала. Храните его в безопасном месте."
+    "The CSV may contain sensitive log data. Store it securely.": "CSV-файл может содержать конфиденциальные данные журнала. Храните его в безопасном месте.",
+    "A complete response was not observed.": "Полный ответ не был получен.",
+    "AI response": "Ответ ИИ",
+    "Allow this user to view request content": "Разрешить просмотр своих запросов",
+    "Context / tool message": "Контекст / сообщение инструмента",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "Только сообщения этого запроса. Хранение 30 дней, без вложений.",
+    "No response text recorded.": "Текст ответа не записан.",
+    "Recorded content was truncated.": "Записанное содержимое сокращено.",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "Запись продолжается для всех аккаунтов. Настройка разрешает пользователю просматривать только свои запросы.",
+    "Request content": "Содержимое запроса",
+    "Request content access": "Доступ к содержимому запросов",
+    "Request content was not recorded or has expired.": "Содержимое не записано или срок хранения истёк.",
+    "Tool / follow-up request": "Запрос инструмента / продолжение",
+    "Unable to load request content": "Не удалось загрузить содержимое запроса",
+    "User question": "Вопрос пользователя"
   }
 }

@@ -6900,6 +6900,20 @@
     "Preparing export...": "Preparing export...",
     "Select both start and end times.": "Select both start and end times.",
     "Start time must be before end time.": "Start time must be before end time.",
-    "The CSV may contain sensitive log data. Store it securely.": "The CSV may contain sensitive log data. Store it securely."
+    "The CSV may contain sensitive log data. Store it securely.": "The CSV may contain sensitive log data. Store it securely.",
+    "A complete response was not observed.": "A complete response was not observed.",
+    "AI response": "AI response",
+    "Allow this user to view request content": "Allow this user to view request content",
+    "Context / tool message": "Context / tool message",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "Messages from this request only. Content is retained for 30 days; attachments are omitted.",
+    "No response text recorded.": "No response text recorded.",
+    "Recorded content was truncated.": "Recorded content was truncated.",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "Recording continues for all accounts. This switch only allows this user to view their own request content.",
+    "Request content": "Request content",
+    "Request content access": "Request content access",
+    "Request content was not recorded or has expired.": "Request content was not recorded or has expired.",
+    "Tool / follow-up request": "Tool / follow-up request",
+    "Unable to load request content": "Unable to load request content",
+    "User question": "User question"
   }
 }

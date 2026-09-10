@@ -112,6 +112,7 @@ func main() {
 	model.GetPricing()
 
 	// 热更新配置
+	go model.PruneRequestContent()
 	go model.SyncOptions(common.SyncFrequency)
 	go controller.SyncTaskPlugins()
 

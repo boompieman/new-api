@@ -6900,6 +6900,20 @@
     "Preparing export...": "正在準備匯出...",
     "Select both start and end times.": "請選擇開始與結束時間。",
     "Start time must be before end time.": "開始時間必須早於結束時間。",
-    "The CSV may contain sensitive log data. Store it securely.": "CSV 可能包含敏感日誌資料，請妥善保管。"
+    "The CSV may contain sensitive log data. Store it securely.": "CSV 可能包含敏感日誌資料，請妥善保管。",
+    "A complete response was not observed.": "未觀察到完整的回應。",
+    "AI response": "AI 回答",
+    "Allow this user to view request content": "允許此使用者查看請求內容",
+    "Context / tool message": "歷史／工具訊息",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "僅顯示本次請求的訊息。內容保存 30 天，不保存附件。",
+    "No response text recorded.": "未記錄到回應文字。",
+    "Recorded content was truncated.": "記錄的內容已截斷。",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "所有帳號都會持續記錄。此開關僅允許該使用者查看自己的請求內容。",
+    "Request content": "請求內容",
+    "Request content access": "請求內容存取",
+    "Request content was not recorded or has expired.": "請求內容未記錄或已到期。",
+    "Tool / follow-up request": "工具／後續請求",
+    "Unable to load request content": "無法載入請求內容",
+    "User question": "使用者提問"
   }
 }

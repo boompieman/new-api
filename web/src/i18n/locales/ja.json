@@ -6900,6 +6900,20 @@
     "Preparing export...": "エクスポートを準備中...",
     "Select both start and end times.": "開始時刻と終了時刻を選択してください。",
     "Start time must be before end time.": "開始時刻は終了時刻より前にしてください。",
-    "The CSV may contain sensitive log data. Store it securely.": "CSV には機密性の高いログデータが含まれる場合があります。安全に保管してください。"
+    "The CSV may contain sensitive log data. Store it securely.": "CSV には機密性の高いログデータが含まれる場合があります。安全に保管してください。",
+    "A complete response was not observed.": "完全な応答は確認できませんでした。",
+    "AI response": "AIの回答",
+    "Allow this user to view request content": "このユーザーにリクエスト内容の閲覧を許可",
+    "Context / tool message": "履歴／ツールメッセージ",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "このリクエストのメッセージのみです。30日間保存され、添付ファイルは含まれません。",
+    "No response text recorded.": "応答テキストは記録されていません。",
+    "Recorded content was truncated.": "記録内容は途中で切り詰められています。",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "全アカウントの記録は継続されます。この設定は本人のリクエスト内容の閲覧のみを許可します。",
+    "Request content": "リクエスト内容",
+    "Request content access": "リクエスト内容へのアクセス",
+    "Request content was not recorded or has expired.": "内容が未記録か保存期限を過ぎています。",
+    "Tool / follow-up request": "ツール／後続リクエスト",
+    "Unable to load request content": "リクエスト内容を読み込めません",
+    "User question": "ユーザーの質問"
   }
 }

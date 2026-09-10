@@ -6900,6 +6900,20 @@
     "Preparing export...": "Đang chuẩn bị xuất...",
     "Select both start and end times.": "Hãy chọn cả thời gian bắt đầu và kết thúc.",
     "Start time must be before end time.": "Thời gian bắt đầu phải trước thời gian kết thúc.",
-    "The CSV may contain sensitive log data. Store it securely.": "Tệp CSV có thể chứa dữ liệu nhật ký nhạy cảm. Hãy lưu trữ tệp an toàn."
+    "The CSV may contain sensitive log data. Store it securely.": "Tệp CSV có thể chứa dữ liệu nhật ký nhạy cảm. Hãy lưu trữ tệp an toàn.",
+    "A complete response was not observed.": "Chưa ghi nhận được phản hồi hoàn chỉnh.",
+    "AI response": "Phản hồi AI",
+    "Allow this user to view request content": "Cho phép người dùng xem nội dung yêu cầu",
+    "Context / tool message": "Ngữ cảnh / tin nhắn công cụ",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "Chỉ gồm tin nhắn trong yêu cầu này. Lưu 30 ngày, không lưu tệp đính kèm.",
+    "No response text recorded.": "Chưa ghi lại văn bản phản hồi.",
+    "Recorded content was truncated.": "Nội dung được ghi lại đã bị cắt ngắn.",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "Mọi tài khoản vẫn được ghi lại. Công tắc này chỉ cho phép người dùng xem nội dung yêu cầu của chính họ.",
+    "Request content": "Nội dung yêu cầu",
+    "Request content access": "Quyền xem nội dung yêu cầu",
+    "Request content was not recorded or has expired.": "Nội dung chưa được ghi lại hoặc đã hết hạn.",
+    "Tool / follow-up request": "Yêu cầu công cụ / tiếp nối",
+    "Unable to load request content": "Không thể tải nội dung yêu cầu",
+    "User question": "Câu hỏi của người dùng"
   }
 }

@@ -6900,6 +6900,20 @@
     "Preparing export...": "Préparation de l’exportation…",
     "Select both start and end times.": "Sélectionnez les heures de début et de fin.",
     "Start time must be before end time.": "L’heure de début doit précéder l’heure de fin.",
-    "The CSV may contain sensitive log data. Store it securely.": "Le fichier CSV peut contenir des données de journal sensibles. Conservez-le en lieu sûr."
+    "The CSV may contain sensitive log data. Store it securely.": "Le fichier CSV peut contenir des données de journal sensibles. Conservez-le en lieu sûr.",
+    "A complete response was not observed.": "Aucune réponse complète observée.",
+    "AI response": "Réponse IA",
+    "Allow this user to view request content": "Autoriser cet utilisateur à voir ses requêtes",
+    "Context / tool message": "Contexte / outil",
+    "Messages from this request only. Content is retained for 30 days; attachments are omitted.": "Messages de cette requête uniquement. Conservation de 30 jours, sans pièces jointes.",
+    "No response text recorded.": "Aucun texte de réponse enregistré.",
+    "Recorded content was truncated.": "Le contenu enregistré a été tronqué.",
+    "Recording continues for all accounts. This switch only allows this user to view their own request content.": "Tous les comptes restent enregistrés. Ce réglage autorise uniquement cet utilisateur à voir ses propres requêtes.",
+    "Request content": "Contenu de la requête",
+    "Request content access": "Accès au contenu des requêtes",
+    "Request content was not recorded or has expired.": "Contenu non enregistré ou expiré.",
+    "Tool / follow-up request": "Requête de suivi / outil",
+    "Unable to load request content": "Impossible de charger le contenu",
+    "User question": "Question utilisateur"
   }
 }
