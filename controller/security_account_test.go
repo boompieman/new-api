@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"database/sql"
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
@@ -229,6 +231,41 @@ func TestSecurityAccountDeletionConcurrentRequestsHaveOneWinner(t *testing.T) {
 		}
 	}
 	assert.Equal(t, 1, succeeded)
+	var deleted model.User
+	require.NoError(t, model.DB.Unscoped().First(&deleted, user.Id).Error)
+	assert.True(t, deleted.DeletedAt.Valid)
+	assert.Equal(t, identity.UserAuthVersion+1, deleted.AuthVersion)
+}
+
+func TestSecurityAccountDeletionWithConcurrentSQLiteWrite(t *testing.T) {
+	user, identity := setupSecurityEnrollmentTest(t)
+	if model.DB.Dialector.Name() != "sqlite" {
+		t.Skip("SQLite read-to-write transaction promotion regression")
+	}
+	require.NoError(t, model.DB.Exec("PRAGMA journal_mode=WAL").Error)
+	connection, err := model.DB.DB()
+	require.NoError(t, err)
+	writer, err := connection.Conn(context.Background())
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = writer.Close() })
+	_, err = writer.ExecContext(context.Background(), "PRAGMA busy_timeout=0")
+	require.NoError(t, err)
+	var attempted bool
+	var writeErr error
+	require.NoError(t, model.DB.Callback().Query().After("gorm:query").Register("account-delete-concurrent-write", func(tx *gorm.DB) {
+		if _, transactional := tx.Statement.ConnPool.(*sql.Tx); !transactional || tx.Statement.Table != "users" || attempted {
+			return
+		}
+		attempted = true
+		// A committed write after the session read invalidates a deferred
+		// SQLite snapshot. A deletion must reserve its writer before that read.
+		_, writeErr = writer.ExecContext(context.Background(), "UPDATE users SET last_login_at = 123 WHERE id = ?", user.Id)
+	}))
+	t.Cleanup(func() { _ = model.DB.Callback().Query().Remove("account-delete-concurrent-write") })
+	err = model.DeleteUserForSession(identity)
+	require.True(t, attempted)
+	require.NoError(t, err)
+	assert.ErrorContains(t, writeErr, "database is locked")
 	var deleted model.User
 	require.NoError(t, model.DB.Unscoped().First(&deleted, user.Id).Error)
 	assert.True(t, deleted.DeletedAt.Valid)
