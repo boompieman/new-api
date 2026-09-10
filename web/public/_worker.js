@@ -31,6 +31,13 @@ export default {
         return response
       }
 
+      if (hasPathPrefix(requestUrl.pathname, '/static')) {
+        return new Response('Not found', {
+          status: 404,
+          headers: { 'Cache-Control': 'no-store' },
+        })
+      }
+
       const headers = new Headers(response.headers)
       headers.set('Cache-Control', 'no-cache')
       return new Response(response.body, {
