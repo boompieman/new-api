@@ -29,13 +29,19 @@ func FlushWriter(c *gin.Context) (err error) {
 		return fmt.Errorf("request context done: %w", c.Request.Context().Err())
 	}
 
-	flusher, ok := c.Writer.(http.Flusher)
-	if !ok {
-		return errors.New("streaming error: flusher not found")
+	c.Writer.WriteHeaderNow()
+	var writer http.ResponseWriter = c.Writer
+	for {
+		if flusher, ok := writer.(interface{ FlushError() error }); ok {
+			return flusher.FlushError()
+		}
+		// Gin's Flush discards the underlying FlushError; unwrap it first.
+		if wrapper, ok := writer.(interface{ Unwrap() http.ResponseWriter }); ok {
+			writer = wrapper.Unwrap()
+			continue
+		}
+		return http.NewResponseController(writer).Flush()
 	}
-
-	flusher.Flush()
-	return nil
 }
 
 func requestContextDone(c *gin.Context) bool {
@@ -89,8 +95,12 @@ func ResponseChunkData(c *gin.Context, resp dto.ResponsesStreamResponse, data st
 		return fmt.Errorf("request context done: %w", c.Request.Context().Err())
 	}
 
-	c.Render(-1, common.CustomEvent{Data: fmt.Sprintf("event: %s\n", resp.Type)})
-	c.Render(-1, common.CustomEvent{Data: fmt.Sprintf("data: %s", data)})
+	if err := (common.CustomEvent{Data: fmt.Sprintf("event: %s\n", resp.Type)}).Render(c.Writer); err != nil {
+		return err
+	}
+	if err := (common.CustomEvent{Data: fmt.Sprintf("data: %s", data)}).Render(c.Writer); err != nil {
+		return err
+	}
 	return FlushWriter(c)
 }
 
