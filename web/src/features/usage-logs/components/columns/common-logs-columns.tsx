@@ -863,6 +863,13 @@ export function useCommonLogsColumns(
               </span>
             )
           }
+          if (log.has_request_content) {
+            detailPreview = (
+              <span className='truncate group-hover:underline'>
+                {log.request_preview || t('Tool / follow-up request')}
+              </span>
+            )
+          }
 
           return (
             <>

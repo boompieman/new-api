@@ -16,6 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { RequestContentAccessDialog } from './dialogs/request-content-access-dialog'
+
 import type { Row } from '@tanstack/react-table'
 import {
   Pencil,
@@ -69,6 +71,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const { t } = useTranslation()
   const user = row.original
   const { setOpen, setCurrentRow, triggerRefresh } = useUsers()
+  const [contentAccessOpen, setContentAccessOpen] = useState(false)
   const [resetPasskeyOpen, setResetPasskeyOpen] = useState(false)
   const [resetTwoFAOpen, setResetTwoFAOpen] = useState(false)
   const [bindingDialogOpen, setBindingDialogOpen] = useState(false)
@@ -160,6 +163,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         ariaLabel={t('Open menu')}
         contentClassName='w-48'
       >
+        <DropdownMenuItem onSelect={() => setContentAccessOpen(true)}>
+          {t('Request content access')}
+        </DropdownMenuItem>
         {isDisabled ? (
           <DropdownMenuItem onClick={() => handleManage('enable')}>
             {t('Enable')}
@@ -263,6 +269,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </DropdownMenuItem>
       </DataTableRowActionMenu>
 
+      <RequestContentAccessDialog
+        userId={user.id}
+        username={user.username}
+        open={contentAccessOpen}
+        onOpenChange={setContentAccessOpen}
+      />
       <ConfirmDialog
         open={resetPasskeyOpen}
         onOpenChange={setResetPasskeyOpen}
