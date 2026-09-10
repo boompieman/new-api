@@ -43,7 +43,8 @@ func RequestContent() gin.HandlerFunc {
 		preview := ""
 		// Only a trailing user message is a new question. Tool continuations are not relabelled.
 		if len(input) > 0 && input[len(input)-1].Role == "user" {
-			preview = string([]rune(input[len(input)-1].Text)[:min(120, len([]rune(input[len(input)-1].Text)))])
+			text := []rune(strings.ReplaceAll(input[len(input)-1].Text, "\x00", "�"))
+			preview = string(text[:min(120, len(text))])
 		}
 		writer := &contentResponseWriter{ResponseWriter: c.Writer}
 		c.Writer = writer
@@ -54,6 +55,8 @@ func RequestContent() gin.HandlerFunc {
 		if modelName == "" {
 			modelName = c.GetString("original_model")
 		}
+		modelRunes := []rune(strings.ReplaceAll(modelName, "\x00", "�"))
+		modelName = string(modelRunes[:min(255, len(modelRunes))])
 		entry := &model.RequestContent{
 			RequestId: c.GetString(common.RequestIdKey), UserId: c.GetInt("id"), TokenId: c.GetInt("token_id"), Model: modelName,
 			ExpiresAt: common.GetTimestamp() + 30*24*60*60, Preview: preview, Input: inputJSON, Output: outputJSON,
