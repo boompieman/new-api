@@ -968,6 +968,12 @@ func (user *User) delete(identity *AuthSessionIdentity) error {
 	}
 	var nextAuthVersion int64
 	if err := DB.Transaction(func(tx *gorm.DB) error {
+		// Reserve the writer before reading session/role state so SQLite does
+		// not have to promote a deferred read transaction after another write.
+		if err := tx.Model(&User{}).Where("id = ?", user.Id).
+			UpdateColumn("auth_version", gorm.Expr("auth_version")).Error; err != nil {
+			return err
+		}
 		if identity != nil {
 			if err := ValidateAuthSessionWithTx(tx, *identity); err != nil {
 				return err
