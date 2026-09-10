@@ -274,7 +274,11 @@ func responseContent(body []byte, stream bool) ([]capturedMessage, bool) {
 		kind, _ := m["type"].(string)
 		if kind == "response.completed" {
 			if response, ok := m["response"].(map[string]any); ok {
-				return contentMessages(response), true
+				messages := contentMessages(response)
+				if len(messages) > 0 {
+					return messages, true
+				}
+				return result, true
 			}
 		}
 		if kind == "response.failed" || kind == "response.incomplete" || kind == "error" {
