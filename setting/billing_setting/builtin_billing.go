@@ -3,6 +3,9 @@ package billing_setting
 // Built-in token prices use actual USD per million tokens. Keep new model
 // defaults here instead of splitting them across the legacy ratio tables.
 var builtinBillingExpr = map[string]string{
+	// https://developers.openai.com/api/docs/pricing#image-generation
+	// Native generation has text-only inputs; cached inputs use the text rate.
+	"gpt-image-2": `tier("standard", p * 5 + cr * 1.25 + img * 8 + c * 30)`,
 	// https://developers.openai.com/api/docs/models/gpt-6-astra
 	// Standard pricing; the long-context rates apply to the whole request.
 	// Do not infer service-tier discounts from incoming request parameters:

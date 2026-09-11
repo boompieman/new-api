@@ -34,7 +34,23 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 }
 
 func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
-	return nil, errors.New("codex channel: endpoint not supported")
+	if info.RelayMode != relayconstant.RelayModeImagesGenerations {
+		return nil, errors.New("codex channel: only native image generation is supported")
+	}
+	if request.N != nil && (*request.N == 0 || *request.N > dto.MaxImageN) {
+		return nil, errors.New("codex channel: invalid image count")
+	}
+	if request.Stream != nil && *request.Stream {
+		return nil, errors.New("codex channel: native image generation does not support streaming")
+	}
+	if len(request.Images) > 0 || len(request.Image) > 0 || len(request.Mask) > 0 {
+		return nil, errors.New("codex channel: reference images require the image edit endpoint")
+	}
+	// Match the standalone Images contract used by the native Codex tool.
+	return dto.ImageRequest{
+		Model: request.Model, Prompt: request.Prompt, N: request.N,
+		Size: request.Size, Quality: request.Quality, Background: request.Background,
+	}, nil
 }
 
 func (a *Adaptor) Init(info *relaycommon.RelayInfo) {
@@ -115,6 +131,8 @@ func (a *Adaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, request
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (usage any, err *types.NewAPIError) {
 	switch info.RelayMode {
+	case relayconstant.RelayModeImagesGenerations:
+		return openai.OpenaiImageHandler(c, info, resp)
 	case relayconstant.RelayModeAlphaSearch:
 		// Alpha search responses are handled by relay.AlphaSearchHelper.
 		return nil, types.NewError(errors.New("codex channel: alpha search response should be handled by AlphaSearchHelper"), types.ErrorCodeInvalidRequest)
@@ -141,6 +159,8 @@ func (a *Adaptor) GetChannelName() string {
 func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	var path string
 	switch info.RelayMode {
+	case relayconstant.RelayModeImagesGenerations:
+		path = "/backend-api/codex/images/generations"
 	case relayconstant.RelayModeResponses:
 		path = "/backend-api/codex/responses"
 	case relayconstant.RelayModeResponsesCompact:
