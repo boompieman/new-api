@@ -82,7 +82,7 @@ func TestResponsesStreamStopsUpstreamOnDeliveryFailure(t *testing.T) {
 			writer := &failedResponsesWriter{ResponseWriter: base.Writer, failAt: tc.failAt, failFlush: tc.failFlush, err: writeErr}
 			c, _ := gin.CreateTestContext(writer) // Exercise Gin's wrapper hiding FlushError.
 			c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", nil)
-			data := "data: {\"type\":\"response.created\"}\n\n"
+			data := "data: {\"type\":\"response.output_text.delta\",\"delta\":\"hello\"}\n\n"
 			if tc.completed {
 				data = "data: {\"type\":\"response.completed\",\"response\":{\"status\":\"completed\",\"usage\":{\"input_tokens\":7,\"output_tokens\":3,\"total_tokens\":10}}}\n\n"
 			}
@@ -108,4 +108,60 @@ func TestResponsesStreamStopsUpstreamOnDeliveryFailure(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestResponsesStreamRetriesFailureBeforeOutput(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	previousTimeout := constant.StreamingTimeout
+	constant.StreamingTimeout = 30
+	t.Cleanup(func() { constant.StreamingTimeout = previousTimeout })
+	body := strings.Join([]string{
+		`data: {"type":"response.created","response":{"status":"in_progress"}}`,
+		`data: {"type":"response.in_progress","response":{"status":"in_progress"}}`,
+		`data: {"type":"response.failed","response":{"status":"failed","error":{"type":"service_unavailable_error","code":"server_is_overloaded","message":"The AI service is temporarily overloaded."}}}`,
+		"",
+	}, "\n\n")
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", nil)
+	info := &relaycommon.RelayInfo{DisablePing: true, ChannelMeta: &relaycommon.ChannelMeta{}}
+
+	usage, apiErr := OaiResponsesStreamHandler(c, info, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader(body)),
+	})
+
+	require.Nil(t, usage)
+	require.NotNil(t, apiErr)
+	assert.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
+	assert.Equal(t, "server_is_overloaded", string(apiErr.GetErrorCode()))
+	assert.Empty(t, recorder.Body.String(), "retryable attempts must not leak an SSE prelude to the client")
+}
+
+func TestResponsesStreamDoesNotRetryFailureAfterOutput(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	previousTimeout := constant.StreamingTimeout
+	constant.StreamingTimeout = 30
+	t.Cleanup(func() { constant.StreamingTimeout = previousTimeout })
+	body := strings.Join([]string{
+		`data: {"type":"response.created","response":{"status":"in_progress"}}`,
+		`data: {"type":"response.output_text.delta","delta":"partial"}`,
+		`data: {"type":"response.failed","response":{"status":"failed","error":{"type":"service_unavailable_error","code":"server_is_overloaded","message":"The AI service is temporarily overloaded."}}}`,
+		"",
+	}, "\n\n")
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", nil)
+	info := &relaycommon.RelayInfo{DisablePing: true, ChannelMeta: &relaycommon.ChannelMeta{}}
+
+	usage, apiErr := OaiResponsesStreamHandler(c, info, &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader(body)),
+	})
+
+	require.NotNil(t, usage)
+	require.Nil(t, apiErr)
+	assert.Contains(t, recorder.Body.String(), `event: response.created`)
+	assert.Contains(t, recorder.Body.String(), `event: response.output_text.delta`)
+	assert.Contains(t, recorder.Body.String(), `event: response.failed`)
 }

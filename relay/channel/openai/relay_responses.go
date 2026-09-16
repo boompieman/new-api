@@ -78,6 +78,13 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 	defer service.CloseResponseBodyGracefully(resp)
 
 	accumulator := service.NewResponsesUsageAccumulator(info)
+	streamCommitted := false
+	var streamErr *types.NewAPIError
+	type pendingChunk struct {
+		response dto.ResponsesStreamResponse
+		data     string
+	}
+	var pendingChunks []pendingChunk
 
 	helper.StreamScannerHandler(c, resp, info, func(data string, sr *helper.StreamResult) {
 
@@ -92,10 +99,43 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 			data = string(rewriteSGLangResponsesCreatedAt(info, []byte(data), "response.created_at", streamResponse.Response.CreatedAt))
 		}
 		accumulator.Observe(&streamResponse)
+		if streamResponse.Type == "response.failed" && !streamCommitted {
+			if streamResponse.Response != nil {
+				if upstreamErr := streamResponse.Response.GetOpenAIError(); upstreamErr != nil && (upstreamErr.Type != "" || upstreamErr.Message != "" || upstreamErr.Code != nil) {
+					streamErr = types.WithOpenAIError(*upstreamErr, http.StatusServiceUnavailable)
+				}
+			}
+			if streamErr == nil {
+				message := streamResponse.Message
+				if message == "" {
+					message = "upstream responses stream failed"
+				}
+				streamErr = types.NewOpenAIError(fmt.Errorf("%s", message), types.ErrorCodeBadResponse, http.StatusServiceUnavailable)
+			}
+			sr.Stop(streamErr)
+			return
+		}
+		if !streamCommitted && len(pendingChunks) < 2 && (streamResponse.Type == "response.created" || streamResponse.Type == "response.in_progress") {
+			pendingChunks = append(pendingChunks, pendingChunk{response: streamResponse, data: data})
+			return
+		}
+		if !streamCommitted {
+			streamCommitted = true
+			for _, chunk := range pendingChunks {
+				if err := helper.ResponseChunkData(c, chunk.response, chunk.data); err != nil {
+					sr.Stop(err)
+					return
+				}
+			}
+			pendingChunks = nil
+		}
 		if err := helper.ResponseChunkData(c, streamResponse, data); err != nil {
 			sr.Stop(err)
 		}
 	})
+	if streamErr != nil {
+		return nil, streamErr
+	}
 
 	common.SetContextKey(c, constant.ContextKeyResponseStreamStatus, info.StreamStatus)
 	info.StreamStatus.RequireTerminal()
