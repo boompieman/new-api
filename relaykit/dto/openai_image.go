@@ -164,6 +164,23 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 	if i.N != nil && *i.N > 0 {
 		imageN = *i.N
 	}
+	additionalPrice := 0.0
+	if strings.HasPrefix(i.Model, "x-ai/grok-imagine-image-2.0") || strings.HasPrefix(i.Model, "grok-imagine-image-2.0") {
+		resolution := "1k"
+		if raw, ok := i.Extra["resolution"]; ok {
+			_ = kitutil.Unmarshal(raw, &resolution)
+		}
+		if resolution == "2k" {
+			sizeRatio = 1.5
+		}
+		if i.Quality == "medium" {
+			qualityRatio = 1.5
+		}
+		var inputReferences []json.RawMessage
+		if raw, ok := i.Extra["input_references"]; ok && kitutil.Unmarshal(raw, &inputReferences) == nil {
+			additionalPrice = float64(len(inputReferences)) * 0.01
+		}
+	}
 
 	// Keep n separate from ImagePriceRatio so size/quality and count remain
 	// independent billing dimensions. Fixed-price pre-consume stores this on
@@ -173,6 +190,7 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 		MaxTokens:       1584,
 		ImagePriceRatio: i.legacyDallePriceRatio(),
 		BillingRatios:   map[string]float64{"n": float64(imageN)},
+		AdditionalPrice: additionalPrice,
 	}
 }
 

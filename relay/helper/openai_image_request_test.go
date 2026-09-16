@@ -239,3 +239,39 @@ func TestGetAndValidOpenAIImageRequestNBounds(t *testing.T) {
 		require.Contains(t, err.Error(), boundErr)
 	})
 }
+
+func TestGetAndValidOpenAIImageRequestGrokImaginePricing(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	newContext := func(body string) *gin.Context {
+		c, _ := gin.CreateTestContext(httptest.NewRecorder())
+		c.Request = httptest.NewRequest(http.MethodPost, "/v1/images/generations", bytes.NewBufferString(body))
+		c.Request.Header.Set("Content-Type", "application/json")
+		return c
+	}
+
+	t.Run("generation defaults auto quality to low and prices references", func(t *testing.T) {
+		req, err := GetAndValidOpenAIImageRequest(newContext(`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","resolution":"2k","n":2,"input_references":[{},{}]}`), relayconstant.RelayModeImagesGenerations)
+		require.NoError(t, err)
+		require.Equal(t, "low", req.Quality)
+		meta := req.GetTokenCountMeta()
+		require.Equal(t, 1.5, meta.ImagePriceRatio)
+		require.Equal(t, 2.0, meta.BillingRatios["n"])
+		require.Equal(t, 0.02, meta.AdditionalPrice)
+	})
+
+	t.Run("edit defaults auto quality to medium", func(t *testing.T) {
+		req, err := GetAndValidOpenAIImageRequest(newContext(`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat"}`), relayconstant.RelayModeImagesEdits)
+		require.NoError(t, err)
+		require.Equal(t, "medium", req.Quality)
+		require.Equal(t, 1.5, req.GetTokenCountMeta().ImagePriceRatio)
+	})
+
+	for _, body := range []string{
+		`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","resolution":"4k"}`,
+		`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","quality":"high"}`,
+		`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","input_references":[{},{},{},{}]}`,
+	} {
+		_, err := GetAndValidOpenAIImageRequest(newContext(body), relayconstant.RelayModeImagesGenerations)
+		require.Error(t, err)
+	}
+}
