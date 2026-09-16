@@ -76,6 +76,13 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 	var responseTextBuilder strings.Builder
 	imageCounter := &relaycommon.ImageGenerationCallCounter{}
 	imageCommitted := false
+	streamCommitted := false
+	var streamErr *types.NewAPIError
+	type pendingChunk struct {
+		response dto.ResponsesStreamResponse
+		data     string
+	}
+	var pendingChunks []pendingChunk
 
 	helper.StreamScannerHandler(c, resp, info, func(data string, sr *helper.StreamResult) {
 
@@ -111,7 +118,29 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 				imageCounter.Commit(info)
 				imageCommitted = true
 			}
-		case "response.failed", "response.incomplete", "response.cancelled", "response.canceled":
+		case "response.failed":
+			if !imageCommitted {
+				imageCounter.Reset()
+				imageCounter.Commit(info)
+				imageCommitted = true
+			}
+			if !streamCommitted {
+				if streamResponse.Response != nil {
+					if upstreamErr := streamResponse.Response.GetOpenAIError(); upstreamErr != nil && (upstreamErr.Type != "" || upstreamErr.Message != "" || upstreamErr.Code != nil) {
+						streamErr = types.WithOpenAIError(*upstreamErr, http.StatusServiceUnavailable)
+					}
+				}
+				if streamErr == nil {
+					message := streamResponse.Message
+					if message == "" {
+						message = "upstream responses stream failed"
+					}
+					streamErr = types.NewOpenAIError(fmt.Errorf("%s", message), types.ErrorCodeBadResponse, http.StatusServiceUnavailable)
+				}
+				sr.Stop(streamErr)
+				return
+			}
+		case "response.incomplete", "response.cancelled", "response.canceled":
 			if !imageCommitted {
 				imageCounter.Reset()
 				imageCounter.Commit(info)
@@ -136,10 +165,27 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 				}
 			}
 		}
+		if !streamCommitted && len(pendingChunks) < 2 && (streamResponse.Type == "response.created" || streamResponse.Type == "response.in_progress") {
+			pendingChunks = append(pendingChunks, pendingChunk{response: streamResponse, data: data})
+			return
+		}
+		if !streamCommitted {
+			streamCommitted = true
+			for _, chunk := range pendingChunks {
+				if err := helper.ResponseChunkData(c, chunk.response, chunk.data); err != nil {
+					sr.Stop(err)
+					return
+				}
+			}
+			pendingChunks = nil
+		}
 		if err := helper.ResponseChunkData(c, streamResponse, data); err != nil {
 			sr.Stop(err)
 		}
 	})
+	if streamErr != nil {
+		return nil, streamErr
+	}
 
 	if usage.CompletionTokens == 0 {
 		// 计算输出文本的 token 数量
