@@ -26,8 +26,9 @@ type TokenCountMeta struct {
 	Files         []*FileMeta `json:"files,omitempty"`          // List of files, each with type and content
 	MaxTokens     int         `json:"max_tokens,omitempty"`     // Maximum tokens allowed in the request
 
-	ImagePriceRatio float64            `json:"image_ratio,omitempty"`    // Ratio for image size, if applicable
-	BillingRatios   map[string]float64 `json:"billing_ratios,omitempty"` // Validated request multipliers used by pre-consume billing
+	ImagePriceRatio float64            `json:"image_ratio,omitempty"`      // Ratio for image size, if applicable
+	BillingRatios   map[string]float64 `json:"billing_ratios,omitempty"`   // Validated request multipliers used by pre-consume billing
+	AdditionalPrice float64            `json:"additional_price,omitempty"` // USD per request, independent of token or image-count multipliers
 	//IsStreaming   bool        `json:"is_streaming,omitempty"`   // Indicates if the request is streaming
 }
 
