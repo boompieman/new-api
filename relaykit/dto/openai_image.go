@@ -175,6 +175,11 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 		}
 		if i.Quality == "medium" {
 			qualityRatio = 1.5
+			if resolution == "2k" {
+				// 2K/Medium is $0.08, not the product of the two $0.06 tiers.
+				sizeRatio = 2
+				qualityRatio = 1
+			}
 		}
 		var inputReferences []json.RawMessage
 		if raw, ok := i.Extra["input_references"]; ok && kitutil.Unmarshal(raw, &inputReferences) == nil {

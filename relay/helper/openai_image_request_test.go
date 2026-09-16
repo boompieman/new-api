@@ -266,6 +266,12 @@ func TestGetAndValidOpenAIImageRequestGrokImaginePricing(t *testing.T) {
 		require.Equal(t, 1.5, req.GetTokenCountMeta().ImagePriceRatio)
 	})
 
+	t.Run("2k medium uses the published 0.08 tier", func(t *testing.T) {
+		req, err := GetAndValidOpenAIImageRequest(newContext(`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","resolution":"2k","quality":"medium"}`), relayconstant.RelayModeImagesGenerations)
+		require.NoError(t, err)
+		require.Equal(t, 2.0, req.GetTokenCountMeta().ImagePriceRatio)
+	})
+
 	for _, body := range []string{
 		`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","resolution":"4k"}`,
 		`{"model":"x-ai/grok-imagine-image-2.0","prompt":"cat","quality":"high"}`,
