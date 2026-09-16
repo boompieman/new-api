@@ -631,6 +631,27 @@ func validateChannel(channel *model.Channel, isAdd bool) error {
 		}
 	}
 
+	if channel.Type == constant.ChannelTypeXai {
+		trimmedKey := strings.TrimSpace(channel.Key)
+		if strings.HasPrefix(trimmedKey, "{") {
+			if channel.ChannelInfo.IsMultiKey {
+				return fmt.Errorf("xAI OAuth does not support multi-key channels")
+			}
+			normalized, err := service.NormalizeXaiOAuthCredential(trimmedKey)
+			if err != nil {
+				return err
+			}
+			baseURL := strings.TrimSpace(channel.GetBaseURL())
+			if baseURL == "" {
+				baseURL = constant.GetChannelBaseURL(constant.ChannelTypeXai)
+			}
+			if err := service.ValidateXaiOAuthBaseURL(baseURL); err != nil {
+				return err
+			}
+			channel.Key = normalized
+		}
+	}
+
 	return nil
 }
 

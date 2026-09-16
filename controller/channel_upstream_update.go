@@ -440,6 +440,13 @@ func fetchChannelUpstreamModelIDs(channel *model.Channel) ([]string, error) {
 		return nil, fmt.Errorf("获取渠道密钥失败: %w", apiErr)
 	}
 	key = strings.TrimSpace(key)
+	if channel.Type == constant.ChannelTypeXai && strings.HasPrefix(key, "{") {
+		resolvedKey, err := service.ResolveXaiChannelAccessToken(context.Background(), channel)
+		if err != nil {
+			return nil, fmt.Errorf("xAI OAuth credential unavailable: %w", err)
+		}
+		key = resolvedKey
+	}
 
 	headers, err := buildFetchModelsHeaders(channel, key)
 	if err != nil {
