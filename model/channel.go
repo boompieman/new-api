@@ -449,6 +449,17 @@ func GetChannelById(id int, selectAll bool) (*Channel, error) {
 	return channel, nil
 }
 
+func GetChannelByIdForUpdate(tx *gorm.DB, id int) (*Channel, error) {
+	if tx == nil {
+		return nil, errors.New("transaction is required")
+	}
+	channel := &Channel{}
+	if err := lockForUpdate(tx).Where("id = ?", id).First(channel).Error; err != nil {
+		return nil, err
+	}
+	return channel, nil
+}
+
 func BatchInsertChannels(channels []Channel) error {
 	if len(channels) == 0 {
 		return nil
