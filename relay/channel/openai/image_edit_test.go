@@ -2,6 +2,7 @@ package openai
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -95,4 +96,24 @@ func TestConvertImageEditRequestMultipart(t *testing.T) {
 
 		convertAndReplay(t, c, prompt)
 	})
+}
+
+func TestConvertGrokImagineGenerationPreservesPricingParameters(t *testing.T) {
+	info := &relaycommon.RelayInfo{RelayMode: relayconstant.RelayModeImagesGenerations}
+	request := dto.ImageRequest{
+		Model:   "x-ai/grok-imagine-image-2.0",
+		Prompt:  "a cat",
+		Quality: "medium",
+		Extra: map[string]json.RawMessage{
+			"resolution":       json.RawMessage(`"2k"`),
+			"aspect_ratio":     json.RawMessage(`"16:9"`),
+			"input_references": json.RawMessage(`[{"url":"https://example.com/cat.png"}]`),
+		},
+	}
+
+	converted, err := (&Adaptor{}).ConvertImageRequest(nil, info, request)
+	require.NoError(t, err)
+	body, err := common.Marshal(converted)
+	require.NoError(t, err)
+	require.JSONEq(t, `{"model":"x-ai/grok-imagine-image-2.0","prompt":"a cat","quality":"medium","resolution":"2k","aspect_ratio":"16:9","input_references":[{"url":"https://example.com/cat.png"}]}`, string(body))
 }

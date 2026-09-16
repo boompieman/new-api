@@ -643,6 +643,24 @@ func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInf
 		c.Request.Header.Set("Content-Type", writer.FormDataContentType())
 		return &requestBody, nil
 
+	case relayconstant.RelayModeImagesGenerations:
+		if request.Model == "x-ai/grok-imagine-image-2.0" {
+			data, err := common.Marshal(request)
+			if err != nil {
+				return nil, err
+			}
+			var converted map[string]json.RawMessage
+			if err := common.Unmarshal(data, &converted); err != nil {
+				return nil, err
+			}
+			for _, field := range []string{"aspect_ratio", "input_references", "resolution"} {
+				if value, ok := request.Extra[field]; ok {
+					converted[field] = value
+				}
+			}
+			return converted, nil
+		}
+		return request, nil
 	default:
 		return request, nil
 	}
