@@ -671,6 +671,13 @@ func SetupContextForSelectedChannel(c *gin.Context, channel *model.Channel, mode
 	if newAPIError != nil {
 		return newAPIError
 	}
+	if channel.Type == constant.ChannelTypeXai && strings.HasPrefix(strings.TrimSpace(key), "{") {
+		resolvedKey, err := service.ResolveXaiChannelAccessToken(c.Request.Context(), channel)
+		if err != nil {
+			return types.NewError(fmt.Errorf("xAI OAuth credential unavailable: %w", err), types.ErrorCodeGetChannelFailed)
+		}
+		key = resolvedKey
+	}
 	if channel.ChannelInfo.IsMultiKey {
 		common.SetContextKey(c, constant.ContextKeyChannelIsMultiKey, true)
 		common.SetContextKey(c, constant.ContextKeyChannelMultiKeyIndex, index)
