@@ -318,6 +318,27 @@ func TestModelPriceHelperRequestBillingRatiosOnlyApplyToFixedPrice(t *testing.T)
 	require.Nil(t, info.Billing)
 }
 
+func TestModelPriceHelperAddsFixedRequestPrice(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	savedModelPrices := ratio_setting.ModelPrice2JSONString()
+	t.Cleanup(func() { require.NoError(t, ratio_setting.UpdateModelPriceByJSONString(savedModelPrices)) })
+	prices, err := common.Marshal(map[string]float64{"grok-imagine-price": 0.04})
+	require.NoError(t, err)
+	require.NoError(t, ratio_setting.UpdateModelPriceByJSONString(string(prices)))
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Set("group", "default")
+	info := &relaycommon.RelayInfo{OriginModelName: "grok-imagine-price", UserGroup: "default", UsingGroup: "default"}
+	priceData, err := ModelPriceHelper(ctx, info, 0, &types.TokenCountMeta{
+		ImagePriceRatio: 1.5,
+		BillingRatios:   map[string]float64{"n": 2},
+		AdditionalPrice: 0.02,
+	})
+	require.NoError(t, err)
+	require.Equal(t, 70000, priceData.QuotaToPreConsume)
+	require.Equal(t, 0.02, priceData.AdditionalPrice)
+}
+
 // Pricing identity is resolved once in ModelPriceHelper via the candidate
 // ladder: raw name (only when it has no @ modifiers) → canonical
 // base@effort:E@thinking:S → base@thinking:S → base. Each level is looked up
