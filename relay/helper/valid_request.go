@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -271,6 +272,28 @@ func GetAndValidOpenAIImageRequest(c *gin.Context, relayMode int) (*dto.ImageReq
 		} else if imageRequest.Model == "gpt-image-1" {
 			if imageRequest.Quality == "" {
 				imageRequest.Quality = "auto"
+			}
+		} else if imageRequest.Model == "x-ai/grok-imagine-image-2.0" {
+			if raw, ok := imageRequest.Extra["resolution"]; ok {
+				var resolution string
+				if err := common.Unmarshal(raw, &resolution); err != nil || (resolution != "1k" && resolution != "2k") {
+					return nil, errors.New("resolution must be 1k or 2k for x-ai/grok-imagine-image-2.0")
+				}
+			}
+			if imageRequest.Quality == "" || imageRequest.Quality == "auto" {
+				if relayMode == relayconstant.RelayModeImagesEdits {
+					imageRequest.Quality = "medium"
+				} else {
+					imageRequest.Quality = "low"
+				}
+			} else if imageRequest.Quality != "low" && imageRequest.Quality != "medium" {
+				return nil, errors.New("quality must be low, medium, or auto for x-ai/grok-imagine-image-2.0")
+			}
+			if raw, ok := imageRequest.Extra["input_references"]; ok {
+				var inputReferences []json.RawMessage
+				if err := common.Unmarshal(raw, &inputReferences); err != nil || len(inputReferences) > 3 {
+					return nil, errors.New("input_references must contain at most 3 images for x-ai/grok-imagine-image-2.0")
+				}
 			}
 		}
 
