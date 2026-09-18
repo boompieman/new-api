@@ -2,6 +2,7 @@ package dto
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
@@ -13,6 +14,13 @@ import (
 // MaxImageN caps the image generation count. Without this bound a huge or
 // wrapped-negative n overflows quota calculation into a negative charge.
 const MaxImageN = 128
+
+// ImageBillingParameters contains only the provider scalars parsed by request
+// validation. Keep this separate from the complete provider request payload.
+type ImageBillingParameters struct {
+	N            *uint `json:"n,omitempty"`
+	PromptExtend *bool `json:"prompt_extend,omitempty"`
+}
 
 type ImageRequest struct {
 	Model             string          `json:"model"`
@@ -39,7 +47,29 @@ type ImageRequest struct {
 	UserId           json.RawMessage `json:"user_id,omitempty"`
 	Image            json.RawMessage `json:"image,omitempty"`
 	// 用匿名参数接收额外参数
-	Extra map[string]json.RawMessage `json:"-"`
+	Extra             map[string]json.RawMessage `json:"-"`
+	BillingParameters *ImageBillingParameters    `json:"-"`
+}
+
+// ImageCount resolves the validated request quantity. Top-level zero retains
+// its legacy default of one; an explicit provider count must be positive.
+func (i *ImageRequest) ImageCount(useProviderParameters bool) (int, error) {
+	n := uint(1)
+	if i.N != nil && *i.N != 0 {
+		n = *i.N
+	}
+	if n > MaxImageN {
+		return 0, fmt.Errorf("n must be an integer between 1 and %d", MaxImageN)
+	}
+	if parameters := i.BillingParameters; parameters != nil && parameters.N != nil {
+		if *parameters.N > MaxImageN || useProviderParameters && *parameters.N == 0 {
+			return 0, fmt.Errorf("parameters.n must be an integer between 1 and %d", MaxImageN)
+		}
+		if useProviderParameters {
+			n = *parameters.N
+		}
+	}
+	return int(n), nil
 }
 
 func (i *ImageRequest) UnmarshalJSON(data []byte) error {
@@ -131,35 +161,14 @@ func indexComma(s string) int {
 }
 
 func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
-	var sizeRatio = 1.0
-	var qualityRatio = 1.0
-
-	if strings.HasPrefix(i.Model, "dall-e") {
-		// Size
-		if i.Size == "256x256" {
-			sizeRatio = 0.4
-		} else if i.Size == "512x512" {
-			sizeRatio = 0.45
-		} else if i.Size == "1024x1024" {
-			sizeRatio = 1
-		} else if i.Size == "1024x1792" || i.Size == "1792x1024" {
-			sizeRatio = 2
-		}
-
-		if i.Model == "dall-e-3" && i.Quality == "hd" {
-			qualityRatio = 2.0
-			if i.Size == "1024x1792" || i.Size == "1792x1024" {
-				qualityRatio = 1.5
-			}
-		}
-	}
-
 	imageN := uint(1)
 	if i.N != nil && *i.N > 0 {
 		imageN = *i.N
 	}
+	imagePriceRatio := i.legacyDallePriceRatio()
 	additionalPrice := 0.0
 	if strings.HasPrefix(i.Model, "x-ai/grok-imagine-image-2.0") || strings.HasPrefix(i.Model, "grok-imagine-image-2.0") {
+		sizeRatio, qualityRatio := 1.0, 1.0
 		resolution := "1k"
 		if raw, ok := i.Extra["resolution"]; ok {
 			_ = kitutil.Unmarshal(raw, &resolution)
@@ -175,6 +184,7 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 				qualityRatio = 1
 			}
 		}
+		imagePriceRatio = sizeRatio * qualityRatio
 		var inputReferences []json.RawMessage
 		if raw, ok := i.Extra["input_references"]; ok && kitutil.Unmarshal(raw, &inputReferences) == nil {
 			additionalPrice = float64(len(inputReferences)) * 0.01
@@ -187,7 +197,7 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 	return &types.TokenCountMeta{
 		CombineText:     i.Prompt,
 		MaxTokens:       1584,
-		ImagePriceRatio: sizeRatio * qualityRatio,
+		ImagePriceRatio: imagePriceRatio,
 		BillingRatios:   map[string]float64{"n": float64(imageN)},
 		AdditionalPrice: additionalPrice,
 	}
