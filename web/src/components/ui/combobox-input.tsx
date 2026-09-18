@@ -75,9 +75,10 @@ export function ComboboxInput({
   const inputRef = React.useRef<HTMLInputElement>(null)
   const listRef = React.useRef<HTMLUListElement>(null)
   const dropdownRef = React.useRef<HTMLDivElement>(null)
-  // The dropdown is portaled so scrolling ancestors cannot clip it. It goes
-  // into the enclosing dialog when there is one, which keeps a modal parent
-  // from treating option clicks as outside presses.
+  // The dropdown is portaled so scrolling ancestors cannot clip it. Prefer a
+  // sensitive-mask ancestor so hidden group names stay masked, then an
+  // enclosing dialog so a modal parent does not treat option clicks as
+  // outside presses.
   const [dropdown, setDropdown] = React.useState<{
     container: HTMLElement
     top: number
@@ -135,7 +136,9 @@ export function ComboboxInput({
     const input = inputRef.current
     if (!input) return
     const container =
-      input.closest<HTMLElement>('[role="dialog"]') ?? document.body
+      input.closest<HTMLElement>('.\\[-webkit-text-security\\:disc\\]') ??
+      input.closest<HTMLElement>('[role="dialog"]') ??
+      document.body
     const measure = () => {
       const rect = input.getBoundingClientRect()
       setDropdown({
