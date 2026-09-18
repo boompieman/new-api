@@ -69,6 +69,19 @@ func SetRelayRouter(router *gin.Engine) {
 	{
 		playgroundRouter.POST("/chat/completions", controller.Playground)
 	}
+	relayDecisionsRouter := router.Group("/api/alpha")
+	relayDecisionsRouter.Use(middleware.RouteTag("relay"))
+	relayDecisionsRouter.Use(middleware.SystemPerformanceCheck())
+	relayDecisionsRouter.Use(middleware.TokenAuth())
+	relayDecisionsRouter.Use(middleware.ModelRequestRateLimit())
+	{
+		httpRouter := relayDecisionsRouter.Group("")
+		httpRouter.Use(middleware.RequestContent(), middleware.Distribute())
+		httpRouter.POST("/decisions", func(c *gin.Context) {
+			controller.Relay(c, types.RelayFormatDecisions)
+		})
+	}
+
 	relayV1Router := router.Group("/v1")
 	relayV1Router.Use(middleware.RouteTag("relay"))
 	relayV1Router.Use(middleware.SystemPerformanceCheck())
@@ -146,6 +159,14 @@ func SetRelayRouter(router *gin.Engine) {
 		// alpha search related routes (Codex standalone web search)
 		httpRouter.POST("/alpha/search", func(c *gin.Context) {
 			controller.Relay(c, types.RelayFormatOpenAIAlphaSearch)
+		})
+
+		// TypeSafe / OpenRouter System One decisions
+		httpRouter.POST("/systemone", func(c *gin.Context) {
+			controller.Relay(c, types.RelayFormatDecisions)
+		})
+		httpRouter.POST("/alpha/decisions", func(c *gin.Context) {
+			controller.Relay(c, types.RelayFormatDecisions)
 		})
 
 		// image related routes

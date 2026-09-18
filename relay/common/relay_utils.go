@@ -23,6 +23,17 @@ type HasImage interface {
 	HasImage() bool
 }
 
+// OpenRouterDecisionsURL maps a channel base URL onto OpenRouter's decisions
+// endpoint. Official bases are https://openrouter.ai/api or .../api/v1.
+func OpenRouterDecisionsURL(baseURL string) string {
+	base := strings.TrimRight(strings.TrimSpace(baseURL), "/")
+	if base == "" {
+		base = "https://openrouter.ai/api"
+	}
+	base = strings.TrimSuffix(base, "/v1")
+	return strings.TrimRight(base, "/") + "/alpha/decisions"
+}
+
 func GetFullRequestURL(baseURL string, requestURL string, channelType int) string {
 	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
 
