@@ -101,19 +101,15 @@ func OaiResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 		accumulator.Observe(&streamResponse)
 		if streamResponse.Type == "response.failed" && !streamCommitted {
 			if streamResponse.Response != nil {
-				if upstreamErr := streamResponse.Response.GetOpenAIError(); upstreamErr != nil && (upstreamErr.Type != "" || upstreamErr.Message != "" || upstreamErr.Code != nil) {
-					streamErr = types.WithOpenAIError(*upstreamErr, http.StatusServiceUnavailable)
+				if upstreamErr := streamResponse.Response.GetOpenAIError(); upstreamErr != nil {
+					code := fmt.Sprint(upstreamErr.Code)
+					if upstreamErr.Type == "service_unavailable_error" || code == "server_is_overloaded" {
+						streamErr = types.WithOpenAIError(*upstreamErr, http.StatusServiceUnavailable)
+						sr.Stop(streamErr)
+						return
+					}
 				}
 			}
-			if streamErr == nil {
-				message := streamResponse.Message
-				if message == "" {
-					message = "upstream responses stream failed"
-				}
-				streamErr = types.NewOpenAIError(fmt.Errorf("%s", message), types.ErrorCodeBadResponse, http.StatusServiceUnavailable)
-			}
-			sr.Stop(streamErr)
-			return
 		}
 		if !streamCommitted && len(pendingChunks) < 2 && (streamResponse.Type == "response.created" || streamResponse.Type == "response.in_progress") {
 			pendingChunks = append(pendingChunks, pendingChunk{response: streamResponse, data: data})
