@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	kitutil "github.com/QuantumNous/new-api/relaykit/relayconvert/kitutil"
 	"github.com/QuantumNous/new-api/relaykit/types"
@@ -164,8 +165,10 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 	if i.N != nil && *i.N > 0 {
 		imageN = *i.N
 	}
+	imagePriceRatio := i.legacyDallePriceRatio()
 	additionalPrice := 0.0
 	if strings.HasPrefix(i.Model, "x-ai/grok-imagine-image-2.0") || strings.HasPrefix(i.Model, "grok-imagine-image-2.0") {
+		sizeRatio, qualityRatio := 1.0, 1.0
 		resolution := "1k"
 		if raw, ok := i.Extra["resolution"]; ok {
 			_ = kitutil.Unmarshal(raw, &resolution)
@@ -181,6 +184,7 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 				qualityRatio = 1
 			}
 		}
+		imagePriceRatio = sizeRatio * qualityRatio
 		var inputReferences []json.RawMessage
 		if raw, ok := i.Extra["input_references"]; ok && kitutil.Unmarshal(raw, &inputReferences) == nil {
 			additionalPrice = float64(len(inputReferences)) * 0.01
@@ -193,7 +197,7 @@ func (i *ImageRequest) GetTokenCountMeta() *types.TokenCountMeta {
 	return &types.TokenCountMeta{
 		CombineText:     i.Prompt,
 		MaxTokens:       1584,
-		ImagePriceRatio: i.legacyDallePriceRatio(),
+		ImagePriceRatio: imagePriceRatio,
 		BillingRatios:   map[string]float64{"n": float64(imageN)},
 		AdditionalPrice: additionalPrice,
 	}
