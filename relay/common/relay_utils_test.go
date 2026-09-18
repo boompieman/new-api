@@ -13,6 +13,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestOpenRouterDecisionsURL(t *testing.T) {
+	tests := []struct {
+		base string
+		want string
+	}{
+		{base: "", want: "https://openrouter.ai/api/alpha/decisions"},
+		{base: "https://openrouter.ai/api", want: "https://openrouter.ai/api/alpha/decisions"},
+		{base: "https://openrouter.ai/api/", want: "https://openrouter.ai/api/alpha/decisions"},
+		{base: "https://openrouter.ai/api/v1", want: "https://openrouter.ai/api/alpha/decisions"},
+		{base: "https://openrouter.ai/api/v1/", want: "https://openrouter.ai/api/alpha/decisions"},
+		{base: "https://proxy.example/openrouter", want: "https://proxy.example/openrouter/alpha/decisions"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.base, func(t *testing.T) {
+			assert.Equal(t, tt.want, OpenRouterDecisionsURL(tt.base))
+		})
+	}
+}
+
 func TestSanitizeURLForLogMasksSensitiveQueryValues(t *testing.T) {
 	rawURL := "https://example.test/v1beta/models/gemini:streamGenerateContent?alt=sse&key=sk-secret&access_token=ya29-secret&api-version=2024-02-01"
 

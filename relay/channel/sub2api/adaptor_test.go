@@ -12,6 +12,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestGetRequestURLDecisionsPreservesIncomingPath(t *testing.T) {
+	adaptor := &Adaptor{}
+	info := &relaycommon.RelayInfo{
+		ChannelMeta: &relaycommon.ChannelMeta{
+			ChannelType:    constant.ChannelTypeSub2API,
+			ChannelBaseUrl: "https://sub2api.example",
+		},
+		RequestURLPath: "/v1/systemone?x=1",
+		RelayMode:      relayconstant.RelayModeDecisions,
+	}
+
+	url, err := adaptor.GetRequestURL(info)
+	require.NoError(t, err)
+	assert.Equal(t, "https://sub2api.example/v1/systemone", url)
+}
+
 func TestGetRequestURLAlphaSearch(t *testing.T) {
 	adaptor := &Adaptor{}
 	info := &relaycommon.RelayInfo{
