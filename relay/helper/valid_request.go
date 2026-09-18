@@ -41,6 +41,8 @@ func GetAndValidateRequest(c *gin.Context, format types.RelayFormat) (request dt
 		request, err = GetAndValidateResponsesCompactionRequest(c)
 	case types.RelayFormatOpenAIAlphaSearch:
 		request, err = GetAndValidateAlphaSearchRequest(c)
+	case types.RelayFormatDecisions:
+		request, err = GetAndValidateDecisionsRequest(c)
 
 	case types.RelayFormatOpenAIImage:
 		request, err = GetAndValidOpenAIImageRequest(c, relayMode)
@@ -157,6 +159,39 @@ func GetAndValidateAlphaSearchRequest(c *gin.Context) (*dto.AlphaSearchRequest, 
 	}
 	if request.Model == "" {
 		return nil, errors.New("model is required")
+	}
+	storage, err := common.GetBodyStorage(c)
+	if err != nil {
+		return nil, err
+	}
+	rawBody, err := storage.Bytes()
+	if err != nil {
+		return nil, err
+	}
+	request.RawBody = rawBody
+	return request, nil
+}
+
+func GetAndValidateDecisionsRequest(c *gin.Context) (*dto.DecisionsRequest, error) {
+	request := &dto.DecisionsRequest{}
+	if err := common.UnmarshalBodyReusable(c, request); err != nil {
+		return nil, err
+	}
+	if request.Model == "" {
+		return nil, errors.New("model is required")
+	}
+	if len(request.State) == 0 {
+		return nil, errors.New("state is required")
+	}
+	if len(request.Questions) == 0 {
+		return nil, errors.New("questions is required")
+	}
+	var questions map[string]json.RawMessage
+	if err := common.Unmarshal(request.Questions, &questions); err != nil {
+		return nil, errors.New("questions must be an object")
+	}
+	if len(questions) == 0 {
+		return nil, errors.New("questions is required")
 	}
 	storage, err := common.GetBodyStorage(c)
 	if err != nil {
