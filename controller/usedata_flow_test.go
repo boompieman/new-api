@@ -8,6 +8,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -132,4 +133,40 @@ func TestGetUserFlowQuotaDatesRejectsInvalidTimeRange(t *testing.T) {
 	require.NoError(t, common.Unmarshal(recorder.Body.Bytes(), &payload))
 	require.False(t, payload.Success)
 	require.Equal(t, "invalid start_timestamp", payload.Message)
+}
+
+func TestUserQuotaDatesAllowsLongRange(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		handler gin.HandlerFunc
+	}{
+		{name: "models", handler: GetUserQuotaDates},
+		{name: "flow", handler: GetUserFlowQuotaDates},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			setupFlowControllerTestDB(t)
+			// Include this user's usage more than a year after the first record.
+			require.NoError(t, model.DB.Create(&model.QuotaData{
+				UserID: 1, Username: "alice", TokenID: 11, UseGroup: "default",
+				ModelName: "gpt-a", CreatedAt: 32_000_000, Count: 3,
+			}).Error)
+
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Set("id", 1)
+			ctx.Set("role", common.RoleCommonUser)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/?start_timestamp=1000&end_timestamp=32000000&username=bob", nil)
+
+			tc.handler(ctx)
+
+			payload := decodeFlowQuotaResponse(t, recorder)
+			require.NotEmpty(t, payload.Data)
+			count := 0
+			for _, row := range payload.Data {
+				assert.Equal(t, "gpt-a", row.ModelName)
+				count += row.Count
+			}
+			assert.Equal(t, 5, count, "include both dates and exclude the other user's usage")
+		})
+	}
 }
