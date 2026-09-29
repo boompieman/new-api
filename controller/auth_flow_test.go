@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/i18n"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/oauth"
 	"github.com/QuantumNous/new-api/service"
@@ -884,7 +885,6 @@ func legacyGitHubBindingAudits(t *testing.T) ([]model.AuditLog, []string) {
 }
 
 func TestOAuthLoginLegacyGitHubBindingRequiresAccountEvidence(t *testing.T) {
-	const declined = "This GitHub account cannot be linked to an existing account automatically, please sign in or register another way and then link GitHub in account settings"
 	tests := []struct {
 		name              string
 		existingGitHubID  string
@@ -982,7 +982,7 @@ func TestOAuthLoginLegacyGitHubBindingRequiresAccountEvidence(t *testing.T) {
 			}
 			assert.Empty(t, response.Header().Values("Set-Cookie"))
 			if test.expectAuditParams != "" {
-				assert.Equal(t, declined, result.Message)
+				assert.Equal(t, i18n.Translate(i18n.DefaultLang, i18n.MsgOAuthNotAutoLinked, map[string]any{"Provider": "GitHub"}), result.Message)
 			}
 		})
 	}
@@ -1119,7 +1119,7 @@ func TestOAuthBindIgnoresLegacyGitHubUsernames(t *testing.T) {
 				return
 			}
 			assert.Equal(t, test.ownGitHubID, bound.GitHubId)
-			assert.Equal(t, "This GitHub account has already been bound", result.Message)
+			assert.Equal(t, i18n.Translate(i18n.DefaultLang, i18n.MsgOAuthAlreadyBound, map[string]any{"Provider": "GitHub"}), result.Message)
 		})
 	}
 }
