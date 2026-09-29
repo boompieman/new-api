@@ -14,6 +14,7 @@ import (
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	relayconstant "github.com/QuantumNous/new-api/relay/constant"
 	"github.com/QuantumNous/new-api/relaykit/dto"
+	"github.com/QuantumNous/new-api/relaykit/types"
 	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting/billing_setting"
 	"github.com/gin-gonic/gin"
@@ -74,6 +75,87 @@ func TestNativeImageGeneration(t *testing.T) {
 	info.RelayMode = relayconstant.RelayModeImagesEdits
 	_, err = a.ConvertImageRequest(nil, info, request)
 	require.Error(t, err)
+}
+
+func TestNativeImageEdit(t *testing.T) {
+	a := &Adaptor{}
+	info := &relaycommon.RelayInfo{
+		ChannelMeta:           &relaycommon.ChannelMeta{ChannelType: constant.ChannelTypeCodex, ChannelBaseUrl: "https://chatgpt.com"},
+		RelayMode:             relayconstant.RelayModeImagesEdits,
+		TieredBillingSnapshot: &billingexpr.BillingSnapshot{EstimatedImageCount: lo.ToPtr(2)},
+	}
+	request := dto.ImageRequest{
+		Model: "gpt-image-2", Prompt: "replace the apron lettering", N: lo.ToPtr(uint(2)),
+		Images:     json.RawMessage(`[{"image_url":"data:image/png;base64,cGhvdG8="},{"image_url":"data:image/png;base64,bG9nbw=="}]`),
+		Background: json.RawMessage(`"opaque"`), Size: "auto", Quality: "high", Stream: lo.ToPtr(false),
+	}
+	converted, err := a.ConvertImageRequest(nil, info, request)
+	require.NoError(t, err)
+	body, err := common.Marshal(converted)
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"model":"gpt-image-2","prompt":"replace the apron lettering","n":2,"images":[{"image_url":"data:image/png;base64,cGhvdG8="},{"image_url":"data:image/png;base64,bG9nbw=="}],"background":"opaque","size":"auto","quality":"high"}`, string(body))
+	url, err := a.GetRequestURL(info)
+	require.NoError(t, err)
+	assert.Equal(t, "https://chatgpt.com/backend-api/codex/images/edits", url)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodPost, "/v1/images/edits", strings.NewReader(string(body)))
+	response := `{"data":[{"b64_json":"aW1hZ2U="}],"usage":{"input_tokens":1500,"input_tokens_details":{"text_tokens":100,"image_tokens":1400},"output_tokens":500,"total_tokens":2000}}`
+	result, apiErr := a.DoResponse(c, &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": {"application/json"}}, Body: io.NopCloser(strings.NewReader(response))}, info)
+	require.Nil(t, apiErr)
+	assert.JSONEq(t, response, w.Body.String())
+	usage := result.(*dto.Usage)
+	assert.Equal(t, 1500, usage.PromptTokens)
+	assert.Equal(t, 1400, usage.PromptTokensDetails.ImageTokens)
+	assert.Equal(t, 500, usage.CompletionTokens)
+	require.NotNil(t, info.BillingImageCount)
+	assert.Equal(t, 1, *info.BillingImageCount)
+
+	for _, tc := range []struct {
+		name   string
+		images string
+	}{
+		{"missing", ""}, {"empty", "[]"}, {"null", "null"},
+		{"object", `{ "image_url": "data:image/png;base64,cGhvdG8=" }`},
+		{"file id only", `[{"file_id":"file-test"}]`}, {"blank URL", `[{"image_url":" "}]`},
+		{"too many", `[{"image_url":"a"},{"image_url":"b"},{"image_url":"c"},{"image_url":"d"},{"image_url":"e"},{"image_url":"f"}]`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			invalid := request
+			invalid.Images = json.RawMessage(tc.images)
+			_, err := a.ConvertImageRequest(c, info, invalid)
+			var apiErr *types.NewAPIError
+			require.ErrorAs(t, err, &apiErr)
+			assert.Equal(t, http.StatusBadRequest, apiErr.StatusCode)
+			assert.True(t, types.IsSkipRetryError(apiErr))
+		})
+	}
+	for _, tc := range []struct {
+		name   string
+		change func(*dto.ImageRequest)
+	}{
+		{"zero count", func(r *dto.ImageRequest) { r.N = lo.ToPtr(uint(0)) }},
+		{"excess count", func(r *dto.ImageRequest) { r.N = lo.ToPtr(uint(dto.MaxImageN + 1)) }},
+		{"streaming", func(r *dto.ImageRequest) { r.Stream = lo.ToPtr(true) }},
+		{"mask", func(r *dto.ImageRequest) { r.Mask = json.RawMessage(`"mask.png"`) }},
+		{"legacy image", func(r *dto.ImageRequest) { r.Image = json.RawMessage(`"image.png"`) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			invalid := request
+			tc.change(&invalid)
+			_, err := a.ConvertImageRequest(c, info, invalid)
+			var apiErr *types.NewAPIError
+			require.ErrorAs(t, err, &apiErr)
+			assert.Equal(t, http.StatusBadRequest, apiErr.StatusCode)
+			assert.True(t, types.IsSkipRetryError(apiErr))
+		})
+	}
+	c.Request.Header.Set("Content-Type", "multipart/form-data; boundary=test")
+	_, err = a.ConvertImageRequest(c, info, request)
+	var invalidForm *types.NewAPIError
+	require.ErrorAs(t, err, &invalidForm)
+	assert.Equal(t, http.StatusBadRequest, invalidForm.StatusCode)
 }
 
 func TestGetRequestURLAlphaSearch(t *testing.T) {

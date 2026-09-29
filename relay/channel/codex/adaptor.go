@@ -34,22 +34,40 @@ func (a *Adaptor) ConvertAudioRequest(c *gin.Context, info *relaycommon.RelayInf
 }
 
 func (a *Adaptor) ConvertImageRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.ImageRequest) (any, error) {
-	if info.RelayMode != relayconstant.RelayModeImagesGenerations {
-		return nil, errors.New("codex channel: only native image generation is supported")
+	if info.RelayMode != relayconstant.RelayModeImagesGenerations && info.RelayMode != relayconstant.RelayModeImagesEdits {
+		return nil, types.NewErrorWithStatusCode(errors.New("codex channel: image endpoint not supported"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 	}
 	if request.N != nil && (*request.N == 0 || *request.N > dto.MaxImageN) {
-		return nil, errors.New("codex channel: invalid image count")
+		return nil, types.NewErrorWithStatusCode(errors.New("codex channel: invalid image count"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 	}
 	if request.Stream != nil && *request.Stream {
-		return nil, errors.New("codex channel: native image generation does not support streaming")
+		return nil, types.NewErrorWithStatusCode(errors.New("codex channel: native images do not support streaming"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 	}
-	if len(request.Images) > 0 || len(request.Image) > 0 || len(request.Mask) > 0 {
-		return nil, errors.New("codex channel: reference images require the image edit endpoint")
+	if info.RelayMode == relayconstant.RelayModeImagesEdits {
+		// Codex edits use JSON images[].image_url, not the public API's multipart image/mask contract.
+		if c != nil && c.Request != nil && strings.HasPrefix(c.GetHeader("Content-Type"), "multipart/") || len(request.Image) > 0 || len(request.Mask) > 0 {
+			return nil, types.NewErrorWithStatusCode(errors.New("codex channel: edits require JSON images[].image_url; multipart, image and mask are not supported"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
+		}
+		var images []struct {
+			ImageURL string `json:"image_url"`
+		}
+		// Match the native Codex tool's limit of five reference images.
+		if err := common.Unmarshal(request.Images, &images); err != nil || len(images) == 0 || len(images) > 5 {
+			return nil, types.NewErrorWithStatusCode(errors.New("codex channel: images must contain 1 to 5 image_url objects"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
+		}
+		for _, image := range images {
+			if strings.TrimSpace(image.ImageURL) == "" {
+				return nil, types.NewErrorWithStatusCode(errors.New("codex channel: image_url is required for every reference image"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
+			}
+		}
+	} else if len(request.Images) > 0 || len(request.Image) > 0 || len(request.Mask) > 0 {
+		return nil, types.NewErrorWithStatusCode(errors.New("codex channel: reference images require the image edit endpoint"), types.ErrorCodeInvalidRequest, http.StatusBadRequest, types.ErrOptionWithSkipRetry())
 	}
 	// Match the standalone Images contract used by the native Codex tool.
 	return dto.ImageRequest{
 		Model: request.Model, Prompt: request.Prompt, N: request.N,
 		Size: request.Size, Quality: request.Quality, Background: request.Background,
+		Images: request.Images,
 	}, nil
 }
 
@@ -131,7 +149,7 @@ func (a *Adaptor) DoRequest(c *gin.Context, info *relaycommon.RelayInfo, request
 
 func (a *Adaptor) DoResponse(c *gin.Context, resp *http.Response, info *relaycommon.RelayInfo) (usage any, err *types.NewAPIError) {
 	switch info.RelayMode {
-	case relayconstant.RelayModeImagesGenerations:
+	case relayconstant.RelayModeImagesGenerations, relayconstant.RelayModeImagesEdits:
 		return openai.OpenaiImageHandler(c, info, resp)
 	case relayconstant.RelayModeAlphaSearch:
 		// Alpha search responses are handled by relay.AlphaSearchHelper.
@@ -161,6 +179,8 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	switch info.RelayMode {
 	case relayconstant.RelayModeImagesGenerations:
 		path = "/backend-api/codex/images/generations"
+	case relayconstant.RelayModeImagesEdits:
+		path = "/backend-api/codex/images/edits"
 	case relayconstant.RelayModeResponses:
 		path = "/backend-api/codex/responses"
 	case relayconstant.RelayModeResponsesCompact:
@@ -168,7 +188,7 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	case relayconstant.RelayModeAlphaSearch:
 		path = "/backend-api/codex/alpha/search"
 	default:
-		return "", errors.New("codex channel: only /v1/responses, /v1/responses/compact and /v1/alpha/search are supported")
+		return "", errors.New("codex channel: endpoint not supported")
 	}
 	return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, path, info.ChannelType), nil
 }
