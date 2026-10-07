@@ -263,7 +263,7 @@ func TestSecurityAccountDeletionWithConcurrentSQLiteWrite(t *testing.T) {
 		_, writeErr = writer.ExecContext(context.Background(), "UPDATE users SET last_login_at = 123 WHERE id = ?", user.Id)
 	}))
 	t.Cleanup(func() { _ = model.DB.Callback().Query().Remove("account-delete-concurrent-write") })
-	err = model.DeleteUserForSession(identity)
+	_, err = model.DeleteUserForSession(identity)
 	require.True(t, attempted)
 	require.NoError(t, err)
 	assert.ErrorContains(t, writeErr, "database is locked")
