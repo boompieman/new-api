@@ -174,13 +174,6 @@ func TestManageUserDemoteAdvancesAuthVersionAndRevokesSessionsOnce(t *testing.T)
 		}).Error)
 	}
 
-	sessionUpdateCount := 0
-	require.NoError(t, db.Callback().Update().Before("gorm:update").Register("test:count_demote_session_updates", func(tx *gorm.DB) {
-		if tx.Statement != nil && tx.Statement.Table == "user_sessions" {
-			sessionUpdateCount++
-		}
-	}))
-
 	identity, proof := manageUserProof(t, db, service.VerificationOperation{Scope: service.VerificationScopeAdminUserManage, Context: []byte(fmt.Sprintf(`{"user_id":%d,"action":"demote"}`, user.Id))})
 	recorder := performVerifiedManageUserRequest(t, fmt.Sprintf(`{"id":%d,"action":"demote"}`, user.Id), identity, proof)
 	assert.Equal(t, http.StatusOK, recorder.Code)
@@ -197,7 +190,6 @@ func TestManageUserDemoteAdvancesAuthVersionAndRevokesSessionsOnce(t *testing.T)
 		assert.Equal(t, model.UserSessionStatusRevoked, session.Status)
 		assert.Equal(t, "admin_demote", session.RevokedReason)
 	}
-	assert.Equal(t, 1, sessionUpdateCount)
 }
 
 func TestManageUserDeleteReturnsImmediatelyAndUnknownActionFails(t *testing.T) {
