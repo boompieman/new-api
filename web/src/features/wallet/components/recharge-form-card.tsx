@@ -297,7 +297,7 @@ export function RechargeFormCard({
                           {formatNumber(displayValue)}
                           {hasDiscount && (
                             <Badge variant='secondary' className='h-4 px-1'>
-                              {getDiscountLabel(discount)}
+                              {getDiscountLabel(discount, t)}
                             </Badge>
                           )}
                         </ToggleGroupItem>
@@ -321,7 +321,7 @@ export function RechargeFormCard({
                     value={localAmount}
                     onChange={(e) => handleAmountChange(e.target.value)}
                     min={minTopup}
-                    placeholder={`Minimum ${minTopup}`}
+                    placeholder={t('Minimum {{amount}}', { amount: minTopup })}
                     className='h-9 text-base sm:h-10 sm:text-lg'
                   />
                 </div>

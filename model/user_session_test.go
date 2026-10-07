@@ -471,7 +471,7 @@ func TestRevokeUserSessionsReturnsCumulativeProgressAndSupportsRetry(t *testing.
 	updateCalls := 0
 	callbackRegistered := true
 	require.NoError(t, DB.Callback().Update().Before("gorm:update").Register(callbackName, func(tx *gorm.DB) {
-		if tx.Statement != nil && tx.Statement.Table == "user_sessions" {
+		if tx.Statement != nil && tx.Statement.Table == "user_sessions" && tx.Statement.Changed("Status") {
 			updateCalls++
 			if updateCalls == 2 {
 				tx.AddError(forcedErr)
