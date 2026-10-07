@@ -748,6 +748,14 @@ func revokeUserSessions(userID int, excludedSID, reason string) (int64, error) {
 		var affected int64
 		var revoked []UserSession
 		err := DB.Transaction(func(tx *gorm.DB) error {
+			// SQLite needs its writer reserved before reading the session batch;
+			// another proof consumer can otherwise invalidate the read snapshot.
+			if common.UsingMainDatabase(common.DatabaseTypeSQLite) {
+				if err := tx.Model(&UserSession{}).Where("sid IN ? AND status = ?", sids, UserSessionStatusActive).
+					UpdateColumn("version", gorm.Expr("version")).Error; err != nil {
+					return err
+				}
+			}
 			if err := lockForUpdate(tx).Where("sid IN ? AND status = ?", sids, UserSessionStatusActive).Find(&revoked).Error; err != nil {
 				return err
 			}

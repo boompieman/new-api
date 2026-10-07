@@ -239,38 +239,45 @@ func TestSecurityAccountDeletionConcurrentRequestsHaveOneWinner(t *testing.T) {
 }
 
 func TestSecurityAccountDeletionWithConcurrentSQLiteWrite(t *testing.T) {
-	user, identity := setupSecurityEnrollmentTest(t)
-	if model.DB.Dialector.Name() != "sqlite" {
-		t.Skip("SQLite read-to-write transaction promotion regression")
+	for _, table := range []string{"users", "user_sessions"} {
+		t.Run(table, func(t *testing.T) {
+			user, identity := setupSecurityEnrollmentTest(t)
+			if model.DB.Dialector.Name() != "sqlite" {
+				t.Skip("SQLite read-to-write transaction promotion regression")
+			}
+			require.NoError(t, model.DB.Exec("PRAGMA journal_mode=WAL").Error)
+			connection, err := model.DB.DB()
+			require.NoError(t, err)
+			writer, err := connection.Conn(context.Background())
+			require.NoError(t, err)
+			t.Cleanup(func() { _ = writer.Close() })
+			_, err = writer.ExecContext(context.Background(), "PRAGMA busy_timeout=0")
+			require.NoError(t, err)
+			var attempted bool
+			var writeErr error
+			require.NoError(t, model.DB.Callback().Query().After("gorm:query").Register("account-delete-concurrent-write", func(tx *gorm.DB) {
+				if _, transactional := tx.Statement.ConnPool.(*sql.Tx); !transactional || tx.Statement.Table != table || attempted {
+					return
+				}
+				if table == "user_sessions" && !strings.Contains(tx.Statement.SQL.String(), " IN ") {
+					return
+				}
+				attempted = true
+				// A committed write after the session read invalidates a deferred
+				// SQLite snapshot. A deletion must reserve its writer before that read.
+				_, writeErr = writer.ExecContext(context.Background(), "UPDATE users SET last_login_at = 123 WHERE id = ?", user.Id)
+			}))
+			t.Cleanup(func() { _ = model.DB.Callback().Query().Remove("account-delete-concurrent-write") })
+			_, err = model.DeleteUserForSession(identity)
+			require.True(t, attempted)
+			require.NoError(t, err)
+			assert.ErrorContains(t, writeErr, "database is locked")
+			var deleted model.User
+			require.NoError(t, model.DB.Unscoped().First(&deleted, user.Id).Error)
+			assert.True(t, deleted.DeletedAt.Valid)
+			assert.Equal(t, identity.UserAuthVersion+1, deleted.AuthVersion)
+		})
 	}
-	require.NoError(t, model.DB.Exec("PRAGMA journal_mode=WAL").Error)
-	connection, err := model.DB.DB()
-	require.NoError(t, err)
-	writer, err := connection.Conn(context.Background())
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = writer.Close() })
-	_, err = writer.ExecContext(context.Background(), "PRAGMA busy_timeout=0")
-	require.NoError(t, err)
-	var attempted bool
-	var writeErr error
-	require.NoError(t, model.DB.Callback().Query().After("gorm:query").Register("account-delete-concurrent-write", func(tx *gorm.DB) {
-		if _, transactional := tx.Statement.ConnPool.(*sql.Tx); !transactional || tx.Statement.Table != "users" || attempted {
-			return
-		}
-		attempted = true
-		// A committed write after the session read invalidates a deferred
-		// SQLite snapshot. A deletion must reserve its writer before that read.
-		_, writeErr = writer.ExecContext(context.Background(), "UPDATE users SET last_login_at = 123 WHERE id = ?", user.Id)
-	}))
-	t.Cleanup(func() { _ = model.DB.Callback().Query().Remove("account-delete-concurrent-write") })
-	_, err = model.DeleteUserForSession(identity)
-	require.True(t, attempted)
-	require.NoError(t, err)
-	assert.ErrorContains(t, writeErr, "database is locked")
-	var deleted model.User
-	require.NoError(t, model.DB.Unscoped().First(&deleted, user.Id).Error)
-	assert.True(t, deleted.DeletedAt.Valid)
-	assert.Equal(t, identity.UserAuthVersion+1, deleted.AuthVersion)
 }
 
 type securityMailbox struct {
