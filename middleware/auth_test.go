@@ -343,6 +343,37 @@ func TestUserAuthAppliesAccessTokenRouteRules(t *testing.T) {
 		})
 	}
 
+	// Fork routes must require their own grant; a read grant cannot authorize
+	// writes or cross over from self usage into administrator logs.
+	for _, test := range []struct {
+		method, route, path, granted, denied string
+	}{
+		{http.MethodPost, "/api/user/topup/manual-bank-transfer", "/api/user/topup/manual-bank-transfer", "wallet:write", "wallet:read"},
+		{http.MethodPost, "/api/user/oen/pay", "/api/user/oen/pay", "wallet:write", "wallet:read"},
+		{http.MethodPut, "/api/user/:id/request-content-access", "/api/user/2/request-content-access", "user:write", "user:read"},
+		{http.MethodGet, "/api/log/self/export", "/api/log/self/export", "usage:read", "profile:read"},
+		{http.MethodGet, "/api/log/content/:request_id", "/api/log/content/request-1", "log:read", "usage:read"},
+		{http.MethodPut, "/api/option/pinnacle-tool", "/api/option/pinnacle-tool", "option:write", "option:read"},
+	} {
+		t.Run(test.method+" "+test.route, func(t *testing.T) {
+			router.Handle(test.method, test.route, UserAuth(), ok)
+			for _, grant := range []struct {
+				scope  string
+				status int
+			}{{test.granted, http.StatusOK}, {test.denied, http.StatusForbidden}} {
+				token, _ := createMiddlewareScopedToken(t, admin.Id, 0, grant.scope)
+				request := httptest.NewRequest(test.method, test.path, nil)
+				request.Header.Set("Authorization", "Bearer "+token)
+				response := httptest.NewRecorder()
+				router.ServeHTTP(response, request)
+				assert.Equal(t, grant.status, response.Code, response.Body.String())
+				if grant.status == http.StatusForbidden {
+					assert.Contains(t, response.Body.String(), "ACCESS_TOKEN_SCOPE_DENIED")
+				}
+			}
+		})
+	}
+
 	// The token grant never widens the account: revoking the Casbin permission
 	// rejects a token that still carries the scope.
 	require.NoError(t, authz.SetUserPermissions(admin.Id, authz.PermissionsMap{authz.ResourceChannel: {authz.ActionRead: false}}))

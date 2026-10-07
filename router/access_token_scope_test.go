@@ -58,6 +58,7 @@ var accessTokenExemptRoutes = []string{
 	// Payment callbacks.
 	"POST /api/stripe/webhook",
 	"POST /api/creem/webhook",
+	"POST /api/oen/webhook",
 	"POST /api/waffo/webhook",
 	"POST /api/waffo-pancake/webhook/:env",
 	"GET /api/user/epay/notify",
@@ -70,6 +71,7 @@ var accessTokenExemptRoutes = []string{
 	// API key authentication (TokenAuthReadOnly).
 	"GET /api/usage/token/",
 	"GET /api/log/token",
+	"POST /api/alpha/decisions",
 }
 
 // accessTokenHelperRoutes are declared through handlePermissionRoute outside
